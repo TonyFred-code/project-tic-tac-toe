@@ -145,6 +145,18 @@ function GameController() {
     return true;
   };
 
+  const checkTie = (board, defaultMarker) => {
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < 3; j++) {
+        if (board[i][j] === defaultMarker) {
+          return false;
+        }
+      }
+    }
+
+    return true;
+  };
+
   const checkBoardStatus = () => {
     const currentBoard = board.getBoard();
     const playerMarker = getActivePlayer().marker;
@@ -158,17 +170,15 @@ function GameController() {
       checkRow(currentBoard[1], playerMarker) ||
       checkRow(currentBoard[2], playerMarker);
 
-    let diagonalLeftToRightWin = (
-        currentBoard[0][0].getValue() === playerMarker &&
-        currentBoard[1][1].getValue() === playerMarker &&
-        currentBoard[2][2].getValue() === playerMarker
-    );
+    let diagonalLeftToRightWin =
+      currentBoard[0][0].getValue() === playerMarker &&
+      currentBoard[1][1].getValue() === playerMarker &&
+      currentBoard[2][2].getValue() === playerMarker;
 
-    let diagonalRightToLeftWin = (
-        currentBoard[0][2].getValue() === playerMarker &&
-        currentBoard[1][1].getValue() === playerMarker &&
-        currentBoard[2][0].getValue() === playerMarker
-    );
+    let diagonalRightToLeftWin =
+      currentBoard[0][2].getValue() === playerMarker &&
+      currentBoard[1][1].getValue() === playerMarker &&
+      currentBoard[2][0].getValue() === playerMarker;
 
     return {
       colWin,
@@ -177,6 +187,8 @@ function GameController() {
       diagonalRightToLeftWin,
     };
   };
+
+  let moveCount = 0;
 
   const makeMove = (row, column) => {
     console.log(
@@ -191,11 +203,32 @@ function GameController() {
       console.log("failed to add marker");
       return;
     }
+    // count move
+    moveCount++;
 
     // check for win and tie
     // display appropriate message
-    const boardStatus = checkBoardStatus();
-    console.table(boardStatus);
+    let boardStatus = null;
+    // it's gonna be a tie at this point.
+    if (moveCount >= 9) {
+      boardStatus = checkTie(board.getBoard(), "-");
+      console.log("it's a tie");
+    }
+    // check to reduce a little how many checks are performed
+    if (moveCount >= 5) {
+      boardStatus = checkBoardStatus();
+      console.table(boardStatus);
+
+      if (
+        boardStatus.colWin ||
+        boardStatus.diagonalLeftToRightWin ||
+        boardStatus.diagonalRightToLeftWin ||
+        boardStatus.rowWin
+      ) {
+        console.log(`${getActivePlayer().name} wins in ${moveCount} moves using "${getActivePlayer().marker}" as marker`);
+        return;
+      }
+    }
     switchActivePlayer();
     printNewRound();
   };
