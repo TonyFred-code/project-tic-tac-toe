@@ -241,3 +241,32 @@ function GameController() {
     getBoard: board.getBoard,
   };
 }
+
+function ScreenController() {
+    let gameController = GameController();
+    const board = document.querySelector(".game-board");
+
+    // <button  class="cell" data-row="0" data-column="0" data-marker="X">X</button>
+    //
+    const renderBoard = () => {
+        const gameBoard = gameController.getBoard();
+        board.textContent = "";
+        for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+                const cellVal = gameBoard[i][j].getValue();
+                const button = document.createElement("button");
+                button.classList.add("cell");
+                button.setAttribute("data-row", `${i}`);
+                button.setAttribute("data-column", `${j}`);
+                button.setAttribute("data-marker", `${cellVal}`);
+
+                button.innerHTML = `${cellVal === "-" ? "&nbsp;": cellVal}`;
+                board.appendChild(button);
+            }
+        }
+    }
+    console.log(board);
+    renderBoard();
+}
+
+ScreenController();
