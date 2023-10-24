@@ -25,7 +25,7 @@ function GameBoard() {
 
     // if there's a marker there already
     // return and log an error
-    if (board[row][column].getValue() !== "U") {
+    if (board[row][column].getValue() !== "-") {
       console.warn("cell occupied");
       return false;
     }
@@ -62,13 +62,13 @@ function GameBoard() {
 
 /*
  ** A Cell represents one "square" on the board and can have one of
- ** "U": no mark placed,
+ ** "-": no mark placed,
  ** "X": Player One's marker,
  ** "O": Player Two's marker
  */
 
 function Cell() {
-  let value = "U";
+  let value = "-";
 
   // Accept player's marker and change value in the cell;
   const addToken = (marker) => {
@@ -99,6 +99,8 @@ function Player(name, marker) {
 function GameController() {
   const board = GameBoard();
 
+  //   replace with logic for getting custom player details
+  //   using Players factory function
   const players = [
     {
       name: "Player One",
@@ -114,30 +116,89 @@ function GameController() {
 
   const switchActivePlayer = () => {
     activePlayer = activePlayer === players[0] ? players[1] : players[0];
-  }
+  };
 
   const getActivePlayer = () => activePlayer;
 
   const printNewRound = () => {
     console.log(board.printBoard());
-    console.log(`${getActivePlayer().name}'s Turn`)
-  }
+    console.log(`${getActivePlayer().name}'s Turn`);
+  };
+
+  const checkRow = (row, marker) => {
+    for (let i = 0; i < 3; i++) {
+      if (row[i].getValue() !== marker) {
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+  const checkColumn = (board, colIndex, marker) => {
+    for (let i = 0; i < 3; i++) {
+      if (board[i][colIndex].getValue() !== marker) {
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+  const checkBoardStatus = () => {
+    const currentBoard = board.getBoard();
+    const playerMarker = getActivePlayer().marker;
+    console.log("checking for wins and ties");
+    let colWin =
+      checkColumn(currentBoard, 0, playerMarker) ||
+      checkColumn(currentBoard, 1, playerMarker) ||
+      checkColumn(currentBoard, 2, playerMarker);
+    let rowWin =
+      checkRow(currentBoard[0], playerMarker) ||
+      checkRow(currentBoard[1], playerMarker) ||
+      checkRow(currentBoard[2], playerMarker);
+
+    let diagonalLeftToRightWin = (
+        currentBoard[0][0].getValue() === playerMarker &&
+        currentBoard[1][1].getValue() === playerMarker &&
+        currentBoard[2][2].getValue() === playerMarker
+    );
+
+    let diagonalRightToLeftWin = (
+        currentBoard[0][2].getValue() === playerMarker &&
+        currentBoard[1][1].getValue() === playerMarker &&
+        currentBoard[2][0].getValue() === playerMarker
+    );
+
+    return {
+      colWin,
+      rowWin,
+      diagonalLeftToRightWin,
+      diagonalRightToLeftWin,
+    };
+  };
 
   const makeMove = (row, column) => {
-     console.log(`Fixing ${getActivePlayer().name}'s Marker in Row - ${row} Column ${column}`);
+    console.log(
+      `Fixing ${
+        getActivePlayer().name
+      }'s Marker in Row - ${row} Column ${column}`
+    );
 
-     const markerAdded = board.addMarker(row, column, getActivePlayer().marker);
+    const markerAdded = board.addMarker(row, column, getActivePlayer().marker);
 
-     if (!markerAdded) {
-        console.log("failed to add marker");
-        return;
-     }
+    if (!markerAdded) {
+      console.log("failed to add marker");
+      return;
+    }
 
-// check for win and tie
-// display appropriate message
-     switchActivePlayer();
-     printNewRound();
-  }
+    // check for win and tie
+    // display appropriate message
+    const boardStatus = checkBoardStatus();
+    console.table(boardStatus);
+    switchActivePlayer();
+    printNewRound();
+  };
 
   printNewRound();
 
@@ -145,5 +206,5 @@ function GameController() {
     getActivePlayer,
     makeMove,
     getBoard: board.getBoard,
-  }
+  };
 }
