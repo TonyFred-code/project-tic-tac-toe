@@ -19,44 +19,24 @@ function GameBoard() {
   //   logic for adding marker to the gameBoard
   const addMarker = (row, column, playerMarker) => {
     if (row >= 3 || column >= 3 || row < 0 || column < 0) {
-      console.warn("invalid board selection");
       return false;
     }
 
     // if there's a marker there already
     // return and log an error
     if (board[row][column].getValue() !== "-") {
-      console.warn("cell occupied");
       return false;
     }
 
     const cell = board[row][column];
     cell.addToken(playerMarker);
 
-    console.log(`Marker ${playerMarker} to cell - (${row}, ${column})`);
     return true;
-  };
-
-  //   print board (pending UI creation)
-  const printBoard = () => {
-    let output = "";
-    const rows = 3;
-    const columns = 3;
-
-    for (let i = 0; i < rows; i++) {
-      // output += "\n"
-      for (let j = 0; j < columns; j++) {
-        output += board[i][j].getValue();
-      }
-      output += "\n";
-    }
-    return output;
   };
 
   return {
     getBoard,
     addMarker,
-    printBoard,
   };
 }
 
@@ -103,15 +83,10 @@ function GameController(
   playerTwoMarker = "O"
 ) {
   const board = GameBoard();
+
   const players = [
-    {
-      name: playerOneName,
-      marker: playerOneMarker,
-    },
-    {
-      name: playerTwoName,
-      marker: playerTwoMarker,
-    },
+    Player(playerOneName, playerOneMarker),
+    Player(playerTwoName, playerTwoMarker),
   ];
 
   const getPlayers = () => players;
@@ -123,11 +98,6 @@ function GameController(
   };
 
   const getActivePlayer = () => activePlayer;
-
-  const printNewRound = () => {
-    console.log(board.printBoard());
-    console.log(`${getActivePlayer().name}'s Turn`);
-  };
 
   const checkRow = (row, marker) => {
     for (let i = 0; i < 3; i++) {
@@ -163,8 +133,8 @@ function GameController(
 
   const checkBoardStatus = () => {
     const currentBoard = board.getBoard();
-    const playerMarker = getActivePlayer().marker;
-    console.log("checking for wins and ties");
+    const playerMarker = getActivePlayer().getMarker();
+
     let colWin =
       checkColumn(currentBoard, 0, playerMarker) ||
       checkColumn(currentBoard, 1, playerMarker) ||
@@ -203,45 +173,33 @@ function GameController(
   const getMoveCount = () => moveCount;
 
   const makeMove = (row, column) => {
-    console.log(
-      `Fixing ${
-        getActivePlayer().name
-      }'s Marker in Row - ${row} Column ${column}`
+    const markerAdded = board.addMarker(
+      row,
+      column,
+      getActivePlayer().getMarker()
     );
 
-    const markerAdded = board.addMarker(row, column, getActivePlayer().marker);
-
     if (!markerAdded) {
-      console.log("failed to add marker");
       return;
     }
+
     // count move
     moveCount++;
 
     // check for win and tie
-    // display appropriate message
     let boardStatus = null;
-    // it's gonna be a tie at this point.
-    if (moveCount >= 9) {
-      boardStatus = checkTie(board.getBoard(), "-");
-      console.log("it's a tie");
-    }
+
     // check to reduce a little how many checks are performed
     if (moveCount >= 5) {
       boardStatus = checkBoardStatus();
-      console.table(boardStatus);
 
       if (
         boardStatus.colWin ||
         boardStatus.diagonalLeftToRightWin ||
         boardStatus.diagonalRightToLeftWin ||
-        boardStatus.rowWin
+        boardStatus.rowWin ||
+        boardStatus.tie
       ) {
-        console.log(
-          `${getActivePlayer().name} wins in ${moveCount} moves using "${
-            getActivePlayer().marker
-          }" as marker`
-        );
         return;
       }
     }
@@ -259,15 +217,8 @@ function GameController(
 
 function ScreenController() {
   // use modals to get this details;
-  const playerOne = Player("Tony", "X");
-  const playerTwo = Player("Fred", "O");
 
-  const gameController = GameController(
-    playerOne.getName(),
-    playerOne.getMarker(),
-    playerTwo.getName(),
-    playerTwo.getMarker()
-  );
+  const gameController = GameController("Player One", "X", "Player Two", "O");
 
   const gameArea = document.querySelector(".game-area");
   const announcementsBar = gameArea.querySelector(".announcements");
@@ -299,22 +250,22 @@ function ScreenController() {
   };
 
   const renderPlayerTurn = () => {
-    const currentPlayer = gameController.getActivePlayer().name;
+    const currentPlayer = gameController.getActivePlayer().getName();
 
     announcementsBar.textContent = `${currentPlayer}'s Turn....`;
   };
 
   const renderRoundWinner = () => {
     const currentPlayer = gameController.getActivePlayer();
-    const playerName = currentPlayer.name;
-    const currentMarker = currentPlayer.marker;
+    const playerName = currentPlayer.getName();
+    const currentMarker = currentPlayer.getMarker();
 
     announcementsBar.textContent = `Winner: ${playerName}. Marker: ${currentMarker}`;
   };
 
   const renderTie = () => {
     announcementsBar.textContent = `Tough Match... It's a TIE`;
-  }
+  };
 
   function startGame() {
     const boardState = board.dataset.state;
@@ -342,14 +293,9 @@ function ScreenController() {
     }
 
     if (gameEnded) {
-        console.log("game has ended");
-        return;
+      console.log("game has ended");
+      return;
     }
-
-    // if (e.currentTarget.dataset.state === "disabled") {
-    //   console.log("disabled");
-    //   return;
-    // }
 
     const row = e.target.dataset.row;
     const currentMarker = e.target.dataset.marker;
@@ -372,10 +318,10 @@ function ScreenController() {
     }
 
     if (boardState.tie) {
-        console.log("game tied");
-        gameEnded = true;
-        renderTie();
-        return;
+      console.log("game tied");
+      gameEnded = true;
+      renderTie();
+      return;
     }
 
     // updateScreen();
@@ -386,7 +332,6 @@ function ScreenController() {
   board.addEventListener("click", addMarker);
   announcementsBar.textContent = "Click Start Button to Start Game";
 
-  //   return {gameController, renderBoard};
 }
 
 ScreenController();
