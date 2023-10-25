@@ -96,21 +96,25 @@ function Player(name, marker) {
   };
 }
 
-function GameController() {
+function GameController(
+  playerOneName = "Player One",
+  playerOneMarker = "X",
+  playerTwoName = "Player Two",
+  playerTwoMarker = "O"
+) {
   const board = GameBoard();
-
-  //   replace with logic for getting custom player details
-  //   using Players factory function
   const players = [
     {
-      name: "Player One",
-      marker: "X",
+      name: playerOneName,
+      marker: playerOneMarker,
     },
     {
-      name: "Player Two",
-      marker: "O",
+      name: playerTwoName,
+      marker: playerTwoMarker,
     },
   ];
+
+  const getPlayers = () => players;
 
   let activePlayer = players[0];
 
@@ -180,11 +184,17 @@ function GameController() {
       currentBoard[1][1].getValue() === playerMarker &&
       currentBoard[2][0].getValue() === playerMarker;
 
+    let tie = false;
+    if (getMoveCount() >= 9) {
+      tie = checkTie(currentBoard, "-");
+    }
+
     return {
       colWin,
       rowWin,
       diagonalLeftToRightWin,
       diagonalRightToLeftWin,
+      tie,
     };
   };
 
@@ -236,34 +246,42 @@ function GameController() {
       }
     }
     switchActivePlayer();
-    printNewRound();
   };
 
-  printNewRound();
-
   return {
-    getActivePlayer,
     makeMove,
     getBoard: board.getBoard,
     getMoveCount,
+    getActivePlayer,
+    getBoardStatus: checkBoardStatus,
   };
 }
 
 function ScreenController() {
-  let gameController = GameController();
-  const board = document.querySelector(".game-board");
-//   const playerOneDialog = document.querySelector("dialog#player-one");
-//   const playerTwoDialog = document.querySelector("dialog#player-two");
-//   const openDialogBtns = document.querySelectorAll("[data-open]");
+  // use modals to get this details;
+  const playerOne = Player("Tony", "X");
+  const playerTwo = Player("Fred", "O");
 
-//   openDialogBtns.forEach((btn) => {
-//     btn.addEventListener("click", openDialog);
-//   });
+  const gameController = GameController(
+    playerOne.getName(),
+    playerOne.getMarker(),
+    playerTwo.getName(),
+    playerTwo.getMarker()
+  );
 
-  // <button  class="cell" data-row="0" data-column="0" data-marker="X">X</button>
+  const gameArea = document.querySelector(".game-area");
+  const announcementsBar = gameArea.querySelector(".announcements");
+  const board = gameArea.querySelector(".game-board");
+  const startGameBtn = gameArea.querySelector(".start-game");
+
+  startGameBtn.addEventListener("click", startGame);
+
+  let gameStarted = false;
+  let gameEnded = false;
 
   const renderBoard = () => {
     const gameBoard = gameController.getBoard();
+
     board.textContent = "";
     for (let i = 0; i < 3; i++) {
       for (let j = 0; j < 3; j++) {
@@ -280,24 +298,95 @@ function ScreenController() {
     }
   };
 
-//   function openDialog(e) {
-//     console.log(e);
-//     const dialog = e.target.dataset.open;
+  const renderPlayerTurn = () => {
+    const currentPlayer = gameController.getActivePlayer().name;
 
-//     if (dialog === "dialog-one") {
-//       playerOneDialog.showModal();
-//       return;
-//     }
+    announcementsBar.textContent = `${currentPlayer}'s Turn....`;
+  };
 
-//     if (dialog === "dialog-two") {
-//       playerTwoDialog.showModal();
-//       return;
-//     }
+  const renderRoundWinner = () => {
+    const currentPlayer = gameController.getActivePlayer();
+    const playerName = currentPlayer.name;
+    const currentMarker = currentPlayer.marker;
 
-//     console.log(dialog);
-//   }
+    announcementsBar.textContent = `Winner: ${playerName}. Marker: ${currentMarker}`;
+  };
+
+  const renderTie = () => {
+    announcementsBar.textContent = `Tough Match... It's a TIE`;
+  }
+
+  function startGame() {
+    const boardState = board.dataset.state;
+
+    if (boardState === "enabled") {
+      return;
+    }
+
+    board.dataset.state = "enabled";
+    gameStarted = true;
+    renderPlayerTurn();
+  }
+
+  //   function throbInstruction() {
+
+  //   }
+
+  function addMarker(e) {
+    // if board is disabled, don't add marker;
+
+    if (!gameStarted) {
+      // throbInstruction();
+      console.log("Start Game with button");
+      return;
+    }
+
+    if (gameEnded) {
+        console.log("game has ended");
+        return;
+    }
+
+    // if (e.currentTarget.dataset.state === "disabled") {
+    //   console.log("disabled");
+    //   return;
+    // }
+
+    const row = e.target.dataset.row;
+    const currentMarker = e.target.dataset.marker;
+    const column = e.target.dataset.column;
+
+    gameController.makeMove(row, column);
+    renderBoard();
+    const boardState = gameController.getBoardStatus();
+
+    if (
+      boardState.colWin ||
+      boardState.rowWin ||
+      boardState.diagonalLeftToRightWin ||
+      boardState.diagonalRightToLeftWin
+    ) {
+      console.log("winner found");
+      gameEnded = true;
+      renderRoundWinner();
+      return;
+    }
+
+    if (boardState.tie) {
+        console.log("game tied");
+        gameEnded = true;
+        renderTie();
+        return;
+    }
+
+    // updateScreen();
+    renderPlayerTurn();
+  }
 
   renderBoard();
+  board.addEventListener("click", addMarker);
+  announcementsBar.textContent = "Click Start Button to Start Game";
+
+  //   return {gameController, renderBoard};
 }
 
 ScreenController();

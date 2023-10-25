@@ -48,7 +48,7 @@ header h1 {
 
 .board-announcements-container {
   display: grid;
-  grid-template-rows: 50px 1fr 50px;
+  grid-template-rows: 60px 1fr 60px;
   gap: 6px;
 }
 
@@ -92,6 +92,7 @@ header h1 {
   justify-content: center;
   background-color: #ffffff;
   border-radius: 6px;
+  padding: 8px 0;
 }
 
 .start-game {
