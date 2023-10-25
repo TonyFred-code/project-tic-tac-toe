@@ -190,6 +190,8 @@ function GameController() {
 
   let moveCount = 0;
 
+  const getMoveCount = () => moveCount;
+
   const makeMove = (row, column) => {
     console.log(
       `Fixing ${
@@ -225,7 +227,11 @@ function GameController() {
         boardStatus.diagonalRightToLeftWin ||
         boardStatus.rowWin
       ) {
-        console.log(`${getActivePlayer().name} wins in ${moveCount} moves using "${getActivePlayer().marker}" as marker`);
+        console.log(
+          `${getActivePlayer().name} wins in ${moveCount} moves using "${
+            getActivePlayer().marker
+          }" as marker`
+        );
         return;
       }
     }
@@ -239,34 +245,59 @@ function GameController() {
     getActivePlayer,
     makeMove,
     getBoard: board.getBoard,
+    getMoveCount,
   };
 }
 
 function ScreenController() {
-    let gameController = GameController();
-    const board = document.querySelector(".game-board");
+  let gameController = GameController();
+  const board = document.querySelector(".game-board");
+//   const playerOneDialog = document.querySelector("dialog#player-one");
+//   const playerTwoDialog = document.querySelector("dialog#player-two");
+//   const openDialogBtns = document.querySelectorAll("[data-open]");
 
-    // <button  class="cell" data-row="0" data-column="0" data-marker="X">X</button>
-    //
-    const renderBoard = () => {
-        const gameBoard = gameController.getBoard();
-        board.textContent = "";
-        for (let i = 0; i < 3; i++) {
-            for (let j = 0; j < 3; j++) {
-                const cellVal = gameBoard[i][j].getValue();
-                const button = document.createElement("button");
-                button.classList.add("cell");
-                button.setAttribute("data-row", `${i}`);
-                button.setAttribute("data-column", `${j}`);
-                button.setAttribute("data-marker", `${cellVal}`);
+//   openDialogBtns.forEach((btn) => {
+//     btn.addEventListener("click", openDialog);
+//   });
 
-                button.innerHTML = `${cellVal === "-" ? "&nbsp;": cellVal}`;
-                board.appendChild(button);
-            }
-        }
+  // <button  class="cell" data-row="0" data-column="0" data-marker="X">X</button>
+
+  const renderBoard = () => {
+    const gameBoard = gameController.getBoard();
+    board.textContent = "";
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < 3; j++) {
+        const cellVal = gameBoard[i][j].getValue();
+        const button = document.createElement("button");
+        button.classList.add("cell");
+        button.setAttribute("data-row", `${i}`);
+        button.setAttribute("data-column", `${j}`);
+        button.setAttribute("data-marker", `${cellVal}`);
+
+        button.innerHTML = `${cellVal === "-" ? "&nbsp;" : cellVal}`;
+        board.appendChild(button);
+      }
     }
-    console.log(board);
-    renderBoard();
+  };
+
+//   function openDialog(e) {
+//     console.log(e);
+//     const dialog = e.target.dataset.open;
+
+//     if (dialog === "dialog-one") {
+//       playerOneDialog.showModal();
+//       return;
+//     }
+
+//     if (dialog === "dialog-two") {
+//       playerTwoDialog.showModal();
+//       return;
+//     }
+
+//     console.log(dialog);
+//   }
+
+  renderBoard();
 }
 
 ScreenController();
