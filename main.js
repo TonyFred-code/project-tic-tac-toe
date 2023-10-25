@@ -89,7 +89,7 @@ function GameController(
     Player(playerTwoName, playerTwoMarker),
   ];
 
-  const getPlayers = () => players;
+  //   const getPlayers = () => players;
 
   let activePlayer = players[0];
 
@@ -217,25 +217,25 @@ function GameController(
 
 function ScreenController() {
   // use modals to get this details;
-
-  const gameController = GameController("Player One", "X", "Player Two", "O");
+  let gameController = GameController("Player One", "X", "Player Two", "O");
 
   const gameArea = document.querySelector(".game-area");
   const announcementsBar = gameArea.querySelector(".announcements");
   const board = gameArea.querySelector(".game-board");
   const startGameBtn = gameArea.querySelector(".start-game");
+  const restartGameBtn = gameArea.querySelector(".restart-game");
 
   startGameBtn.addEventListener("click", startGame);
+  restartGameBtn.addEventListener("click", restartGame);
 
   let gameStarted = false;
   let gameEnded = false;
 
   const renderBoard = () => {
-    const gameBoard = gameController.getBoard();
-
     board.textContent = "";
     for (let i = 0; i < 3; i++) {
       for (let j = 0; j < 3; j++) {
+        const gameBoard = gameController.getBoard();
         const cellVal = gameBoard[i][j].getValue();
         const button = document.createElement("button");
         button.classList.add("cell");
@@ -276,7 +276,29 @@ function ScreenController() {
 
     board.dataset.state = "enabled";
     gameStarted = true;
+    gameEnded = false;
     renderPlayerTurn();
+    showElement(restartGameBtn);
+    hideElement(startGameBtn);
+  }
+
+  function restartGame() {
+    gameController = GameController();
+    gameStarted = false;
+    gameEnded = true;
+    board.dataset.state = "disabled";
+    renderBoard();
+    announcementsBar.textContent = "Click the Start Button to Start Game";
+    showElement(startGameBtn);
+    hideElement(restartGameBtn);
+  }
+
+  function showElement(elm) {
+    elm.classList.remove("hidden");
+  }
+
+  function hideElement(elm) {
+    elm.classList.add("hidden");
   }
 
   //   function throbInstruction() {
@@ -297,9 +319,14 @@ function ScreenController() {
       return;
     }
 
+
     const row = e.target.dataset.row;
     const currentMarker = e.target.dataset.marker;
     const column = e.target.dataset.column;
+
+    if (!row || !column) {
+        return;
+    }
 
     gameController.makeMove(row, column);
     renderBoard();
@@ -324,14 +351,14 @@ function ScreenController() {
       return;
     }
 
-    // updateScreen();
     renderPlayerTurn();
   }
 
   renderBoard();
   board.addEventListener("click", addMarker);
   announcementsBar.textContent = "Click Start Button to Start Game";
-
+  showElement(startGameBtn);
+  hideElement(restartGameBtn);
 }
 
 ScreenController();
