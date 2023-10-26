@@ -34,7 +34,21 @@ function GameBoard() {
     return true;
   };
 
+//   print board for console mode
+  const printBoard = () => {
+    let output = "";
+    for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+            output += `${board[i][j].getValue()}`;
+        }
+        output += "\n"
+    }
+
+    return output;
+  }
+
   return {
+    printBoard,
     getBoard,
     addMarker,
   };
@@ -80,7 +94,8 @@ function GameController(
   playerOneName = "Player One",
   playerOneMarker = "X",
   playerTwoName = "Player Two",
-  playerTwoMarker = "O"
+  playerTwoMarker = "O",
+  gameMode = "player-player"
 ) {
   const board = GameBoard();
 
