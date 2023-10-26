@@ -89,8 +89,6 @@ function GameController(
     Player(playerTwoName, playerTwoMarker),
   ];
 
-  //   const getPlayers = () => players;
-
   let activePlayer = players[0];
 
   const switchActivePlayer = () => {
@@ -216,10 +214,52 @@ function GameController(
 }
 
 function ScreenController() {
+
+/*
+ Display area for choosing game mode
+  - Player vs Bot
+  - Player vs Player
+
+ Display Dialog Forms based on player mode choice (include option to go back to mode selection)
+  - Player vs Bot Selection (create basic random but legal move AI)
+    - Request a name for player
+    - Allow choice marker between X and O;
+  - Player vs Player Selection
+    - request a name for player one - Marker X
+    - request a name for player two - Marker O
+
+--- After Selection is Made and Dialog Form submitted---
+--- Use details to create board and players
+
+ Hide Game Mode and Dialogs from player.
+
+ Display Details about players and playing mode and some rules
+  - Display Player One Details
+    - Marker and Name
+  - Display Player Two (or Bot) details
+    - Marker and Name
+    - If (botmode)
+      - Display custom bot name (easy = Edith, medium = Friday, hard = Jarvis)
+  - Display a Start Game Button
+
+  --- Upon Clicking Start Game ---
+  Display tic tac toe board
+  Display score board
+  Display scores for each player (and bot) next to name and marker on scoreboard
+*/
+
+
+
   // use modals to get this details;
   let gameController = GameController("Player One", "X", "Player Two", "O");
 
   const gameArea = document.querySelector(".game-area");
+  const playerBotDialog = document.querySelector("dialog#player-bot");
+  const playerPlayerDialog = document.querySelector("dialog#player-player");
+
+
+  const modeSelectionBar = gameArea.querySelector(".mode-selection-container");
+
   const announcementsBar = gameArea.querySelector(".announcements");
   const board = gameArea.querySelector(".game-board");
   const startGameBtn = gameArea.querySelector(".start-game");
@@ -228,6 +268,24 @@ function ScreenController() {
   startGameBtn.addEventListener("click", startGame);
   restartGameBtn.addEventListener("click", restartGame);
 
+  modeSelectionBar.addEventListener("click", selectMode);
+
+  function selectMode(e) {
+    const gameMode = e.target.dataset.mode;
+
+    if (!gameMode) return;
+
+    if (gameMode === "player-player") {
+        playerPlayerDialog.showModal();
+        return;
+    }
+
+    if (gameMode === "player-bot") {
+        playerBotDialog.showModal();
+        return;
+    }
+    console.log(gameMode);
+  }
   let gameStarted = false;
   let gameEnded = false;
 
@@ -319,13 +377,12 @@ function ScreenController() {
       return;
     }
 
-
     const row = e.target.dataset.row;
     const currentMarker = e.target.dataset.marker;
     const column = e.target.dataset.column;
 
     if (!row || !column) {
-        return;
+      return;
     }
 
     gameController.makeMove(row, column);
