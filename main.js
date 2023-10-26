@@ -91,31 +91,30 @@ function Player(name, marker) {
 }
 
 function HumanPlayer(name, marker) {
+  const player = Player(name, marker);
 
-    const player = Player(name, marker);
+  const makeChoice = (board, row, col) => {
+    if (!board) return `board not found`;
 
-    const makeChoice = (board, row, col) => {
-        if (!board) return `board not found`;
+    if (typeof row !== "number")
+      return `row must be a number between 0 and 2 (inclusive)`;
 
-        if (typeof row !== "number")
-          return `row must be a number between 0 and 2 (inclusive)`;
+    if (typeof col !== "number")
+      return `column must be a number between 0 and 2 (inclusive)`;
 
-        if (typeof col !== "number")
-          return `column must be a number between 0 and 2 (inclusive)`;
+    if (row < 0 || row > 2) return `invalid row input`;
 
-        if (row < 0 || row > 2) return `invalid row input`;
+    if (col < 0 || col > 2) return `invalid column input`;
 
-        if (col < 0 || col > 2) return `invalid column input`;
+    let moveValid = board.addMarker(row, col, marker);
 
-        let moveValid = board.addMarker(row, col, marker);
-
-        if (moveValid) {
-          return `Valid move approved`;
-        } else {
-            return `Invalid move ignored`
-        }
-      };
-    return Object.assign({}, player, { makeChoice })
+    if (moveValid) {
+      return `Valid move approved`;
+    } else {
+      return `Invalid move ignored`;
+    }
+  };
+  return Object.assign({}, player, { makeChoice });
 }
 
 function Computer(name, marker) {
@@ -131,26 +130,169 @@ function Computer(name, marker) {
     const validMoves = [];
 
     for (let i = 0; i < 3; i++) {
-        for (let j = 0; j < 3; j++) {
-           if (board[i][j].getValue() !== "-") continue;
-           validMoves.push([i, j]);
-        }
+      for (let j = 0; j < 3; j++) {
+        if (board[i][j].getValue() !== "-") continue;
+        validMoves.push([i, j]);
+      }
     }
 
     return validMoves;
-  }
+  };
 
   const makeChoice = (board) => {
     if (!board) return;
 
     const validMoves = getValidMoves(board.getBoard());
-    console.log(validMoves);
     const index = getRndInt(0, validMoves.length - 1);
     const move = validMoves[index];
     board.addMarker(move[0], move[1], marker);
   };
 
   return Object.assign({}, player, { makeChoice });
+}
+
+function GameRound(
+  roundMode = "player-player",
+  playerOneName = "Player One",
+  playerOneMarker = "X",
+  playerTwoName = "Player Two",
+  playerTwoMarker = "O"
+) {
+  const board = GameBoard();
+
+  const players = [];
+
+  players.push(HumanPlayer(playerOneName, playerOneMarker))
+
+  if (roundMode === "player-player") {
+    players.push(HumanPlayer(playerTwoName, playerTwoMarker));
+  } else if (roundMode === "player-bot") {
+    players.push(Computer(playerTwoName, playerTwoMarker));
+  }
+
+//   let activePlayer = players[0];
+
+//   const switchActivePlayer = () => {
+//     activePlayer = activePlayer === players[0] ? players[1] : players[0];
+//   };
+
+//   const getActivePlayer = () => activePlayer;
+
+//   const checkRow = (row, marker) => {
+//     for (let i = 0; i < 3; i++) {
+//       if (row[i].getValue() !== marker) {
+//         return false;
+//       }
+//     }
+
+//     return true;
+//   };
+
+//   const checkColumn = (board, colIndex, marker) => {
+//     for (let i = 0; i < 3; i++) {
+//       if (board[i][colIndex].getValue() !== marker) {
+//         return false;
+//       }
+//     }
+
+//     return true;
+//   };
+
+//   const checkTie = (board, defaultMarker) => {
+//     for (let i = 0; i < 3; i++) {
+//       for (let j = 0; j < 3; j++) {
+//         if (board[i][j] === defaultMarker) {
+//           return false;
+//         }
+//       }
+//     }
+
+//     return true;
+//   };
+
+//   const checkBoardStatus = () => {
+//     const currentBoard = board.getBoard();
+//     const playerMarker = getActivePlayer().getMarker();
+
+//     let colWin =
+//       checkColumn(currentBoard, 0, playerMarker) ||
+//       checkColumn(currentBoard, 1, playerMarker) ||
+//       checkColumn(currentBoard, 2, playerMarker);
+//     let rowWin =
+//       checkRow(currentBoard[0], playerMarker) ||
+//       checkRow(currentBoard[1], playerMarker) ||
+//       checkRow(currentBoard[2], playerMarker);
+
+//     let diagonalLeftToRightWin =
+//       currentBoard[0][0].getValue() === playerMarker &&
+//       currentBoard[1][1].getValue() === playerMarker &&
+//       currentBoard[2][2].getValue() === playerMarker;
+
+//     let diagonalRightToLeftWin =
+//       currentBoard[0][2].getValue() === playerMarker &&
+//       currentBoard[1][1].getValue() === playerMarker &&
+//       currentBoard[2][0].getValue() === playerMarker;
+
+//     let tie = false;
+//     if (getMoveCount() >= 9) {
+//       tie = checkTie(currentBoard, "-");
+//     }
+
+//     return {
+//       colWin,
+//       rowWin,
+//       diagonalLeftToRightWin,
+//       diagonalRightToLeftWin,
+//       tie,
+//     };
+//   };
+
+//   let moveCount = 0;
+
+//   const getMoveCount = () => moveCount;
+
+//   const makeMove = (row, column) => {
+//     const markerAdded = board.addMarker(
+//       row,
+//       column,
+//       getActivePlayer().getMarker()
+//     );
+
+//     if (!markerAdded) {
+//       return;
+//     }
+
+//     // count move
+//     moveCount++;
+
+//     // check for win and tie
+//     let boardStatus = null;
+
+//     // check to reduce a little how many checks are performed
+//     if (moveCount >= 5) {
+//       boardStatus = checkBoardStatus();
+
+//       if (
+//         boardStatus.colWin ||
+//         boardStatus.diagonalLeftToRightWin ||
+//         boardStatus.diagonalRightToLeftWin ||
+//         boardStatus.rowWin ||
+//         boardStatus.tie
+//       ) {
+//         return;
+//       }
+//     }
+//     switchActivePlayer();
+//   };
+
+  return {
+    players,
+    // makeMove,
+    // getBoard: board.getBoard,
+    // getMoveCount,
+    // getActivePlayer,
+    // getBoardStatus: checkBoardStatus,
+  };
 }
 
 function GameController(
