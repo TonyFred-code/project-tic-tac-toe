@@ -153,11 +153,63 @@ function PlayerBotRound(
         Computer(botName, botMarker)
     ]
 
+    // ensures player with marker = "X" plays first;
+    let activePlayer = players[0].getMarker() === "X" ? players[0] : players[1];
+
+    const switchActivePlayer = () => {
+      activePlayer = activePlayer === players[0] ? players[1] : players[0];
+    };
+
+    const getActivePlayer = () => activePlayer;
+
+    const printPlayerTurn = () => {
+        const currentPlayer = getActivePlayer();
+
+        console.log(`${currentPlayer.getName()}'s Turn...`);
+
+        if (currentPlayer.getName() === botName) {
+            makeMove();
+        }
+    }
+
+    const makeMove = (row, column) => {
+
+        const currentPlayer = getActivePlayer();
+
+        if (currentPlayer.getName() === botName) {
+            const move = currentPlayer.getChoice(gameBoard);
+            row = move[0];
+            column = move[1];
+        }
+
+        // check if move should be allowed;
+        // such as when game is tied or winner has been
+
+        console.log(`Adding marker - ${currentPlayer.getMarker()} to Row - ${row} Column - ${column}`);
+
+        const markerAdded = gameBoard.addMarker(row, column, currentPlayer.getMarker());
+
+        if (!markerAdded) {
+            console.warn("Failed to Add Marker");
+            return;
+        }
+
+        console.log(`Added marker - ${currentPlayer.getMarker()} to Row - ${row} Column - ${column}`);
+        console.log("Printing New Board");
+        console.log(gameBoard.printBoard());
+        switchActivePlayer();
+        printPlayerTurn();
+    }
+
+    console.log(gameBoard.printBoard());
+    printPlayerTurn();
+
 
     return {
         players,
+        getActivePlayer,
+        makeMove,
     }
-
 }
 
 function GameController(
