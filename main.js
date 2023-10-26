@@ -23,7 +23,7 @@ function GameBoard() {
     }
 
     // if there's a marker there already
-    // return and log an error
+    // return false
     if (board[row][column].getValue() !== "-") {
       return false;
     }
@@ -34,18 +34,18 @@ function GameBoard() {
     return true;
   };
 
-//   print board for console mode
+  //   print board for console mode
   const printBoard = () => {
     let output = "";
     for (let i = 0; i < 3; i++) {
-        for (let j = 0; j < 3; j++) {
-            output += `${board[i][j].getValue()}`;
-        }
-        output += "\n"
+      for (let j = 0; j < 3; j++) {
+        output += `${board[i][j].getValue()}`;
+      }
+      output += "\n";
     }
 
     return output;
-  }
+  };
 
   return {
     printBoard,
@@ -88,6 +88,69 @@ function Player(name, marker) {
     getMarker,
     getName,
   };
+}
+
+function HumanPlayer(name, marker) {
+
+    const player = Player(name, marker);
+
+    const makeChoice = (board, row, col) => {
+        if (!board) return `board not found`;
+
+        if (typeof row !== "number")
+          return `row must be a number between 0 and 2 (inclusive)`;
+
+        if (typeof col !== "number")
+          return `column must be a number between 0 and 2 (inclusive)`;
+
+        if (row < 0 || row > 2) return `invalid row input`;
+
+        if (col < 0 || col > 2) return `invalid column input`;
+
+        let moveValid = board.addMarker(row, col, marker);
+
+        if (moveValid) {
+          return `Valid move approved`;
+        } else {
+            return `Invalid move ignored`
+        }
+      };
+    return Object.assign({}, player, { makeChoice })
+}
+
+function Computer(name, marker) {
+  const player = Player(name, marker);
+
+  const getRndInt = (min, max) => {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1) + min);
+  };
+
+  const getValidMoves = (board) => {
+    const validMoves = [];
+
+    for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+           if (board[i][j].getValue() !== "-") continue;
+           validMoves.push([i, j]);
+        }
+    }
+
+    return validMoves;
+  }
+
+  const makeChoice = (board) => {
+    if (!board) return;
+
+    const validMoves = getValidMoves(board.getBoard());
+    console.log(validMoves);
+    const index = getRndInt(0, validMoves.length - 1);
+    const move = validMoves[index];
+    board.addMarker(move[0], move[1], marker);
+  };
+
+  return Object.assign({}, player, { makeChoice });
 }
 
 function GameController(
@@ -229,8 +292,7 @@ function GameController(
 }
 
 function ScreenController() {
-
-/*
+  /*
  Display area for choosing game mode
   - Player vs Bot
   - Player vs Player
@@ -263,15 +325,12 @@ function ScreenController() {
   Display scores for each player (and bot) next to name and marker on scoreboard
 */
 
-
-
   // use modals to get this details;
   let gameController = GameController("Player One", "X", "Player Two", "O");
 
   const gameArea = document.querySelector(".game-area");
   const playerBotDialog = document.querySelector("dialog#player-bot");
   const playerPlayerDialog = document.querySelector("dialog#player-player");
-
 
   const modeSelectionBar = gameArea.querySelector(".mode-selection-container");
 
@@ -291,13 +350,13 @@ function ScreenController() {
     if (!gameMode) return;
 
     if (gameMode === "player-player") {
-        playerPlayerDialog.showModal();
-        return;
+      playerPlayerDialog.showModal();
+      return;
     }
 
     if (gameMode === "player-bot") {
-        playerBotDialog.showModal();
-        return;
+      playerBotDialog.showModal();
+      return;
     }
     console.log(gameMode);
   }
