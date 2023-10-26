@@ -130,6 +130,36 @@ function Computer(name, marker) {
   return Object.assign({}, player, { getChoice });
 }
 
+// function HumanHumanRound(
+//     playerOneName = "Player One",
+//     playerOneMarker = "X",
+//     playerTwoName = "Player Two",
+//     playerTwoMarker = "O"
+// ) {
+
+// }
+
+function PlayerBotRound(
+    playerOneName = "Player One",
+    playerOneMarker = "X"
+) {
+
+    const gameBoard = GameBoard();
+    const botName = "Bot";
+    const botMarker = `${playerOneMarker === "X" ? "O" : "X"}`;
+
+    const players = [
+        HumanPlayer(playerOneName, playerOneMarker),
+        Computer(botName, botMarker)
+    ]
+
+
+    return {
+        players,
+    }
+
+}
+
 function GameController(
   playerOneName = "Player One",
   playerOneMarker = "X",
