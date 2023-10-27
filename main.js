@@ -135,6 +135,16 @@ function Computer(name, marker) {
   return Object.assign({}, player, { getChoice });
 }
 
+function GameRound(
+    mode = "player-player",
+    playerOneName = "Player One",
+    playerOneMarker = "X",
+    playerTwoName = "Player Two",
+    playerTwoMarker = "O",
+) {
+
+}
+
 function PlayerPlayerRound(
   playerOneName = "Player One",
   playerTwoName = "Player Two"
