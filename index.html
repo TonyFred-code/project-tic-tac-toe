@@ -17,7 +17,7 @@
       <div class="game-area">
         <div class="mode-selection-container">
           <h3>Choose Playing Mode</h3>
-          <div>
+          <div class="modes-container">
             <button class="ai-vs-player-mode" data-mode="player-bot">
               Player vs Computer
             </button>
@@ -63,7 +63,7 @@
             />
           </div>
           <div class="row btn-container">
-            <button class="cancel">Cancel</button>
+            <button class="cancel-dialog">Cancel</button>
             <button class="submit-dialog">Submit</button>
           </div>
         </form>
@@ -85,19 +85,19 @@
           <div class="row marker-choices">
             <h4>Choose Marker</h4>
             <label for="player-marker-x">
-              <input type="radio" name="marker" id="player-marker-x" value="X" />
+              <input type="radio" name="player-marker" id="player-marker-x" value="X" checked/>
               X</label
             >
 
             <label for="player-marker-o">
-              <input type="radio" name="marker" id="player-marker-o" value="O"> O
+              <input type="radio" name="player-marker" id="player-marker-o" value="O"> O
             </label>
           </div>
 
           <div class="row bot-difficulty-choices">
             <h4>Choose Bot Difficulty</h4>
             <label for="easy-bot">
-              <input type="radio" name="bot-difficulty" id="easy-bot" value="easy" />
+              <input type="radio" name="bot-difficulty" id="easy-bot" value="easy" checked />
               Easy</label
             >
 
@@ -106,7 +106,7 @@
             </label>
           </div>
           <div class="row btn-container">
-            <button class="cancel">Cancel</button>
+            <button class="cancel-dialog">Cancel</button>
             <button class="submit-dialog">Submit</button>
           </div>
         </form>

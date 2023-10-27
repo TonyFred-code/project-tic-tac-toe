@@ -452,6 +452,7 @@ function PlayerPlayerRound(
   return {
     getRoundState: gameRound.getRoundState,
     playerMove,
+    getBoard: gameRound.getBoard,
   };
 }
 
@@ -526,6 +527,7 @@ function PlayerBotRound(
   return {
     getRoundState: gameRound.getRoundState,
     playerMove,
+    getBoard: gameRound.getBoard,
   };
 }
 
@@ -546,11 +548,15 @@ function GameController(
     newPlayerOneMarker = playerOneMarker,
     newBotName = botName,
     newBotDifficulty = botDifficulty
-    ) => {
+  ) => {
     if (roundName === "player-player") {
       gameRound = PlayerPlayerRound(newPlayerOneName, newPlayerTwoName);
     } else if (roundName === "player-bot") {
-      gameRound = PlayerBotRound(newPlayerOneName, newPlayerOneMarker, newBotName);
+      gameRound = PlayerBotRound(
+        newPlayerOneName,
+        newPlayerOneMarker,
+        newBotName
+      );
     }
     console.log(gameRound);
   };
@@ -564,7 +570,6 @@ function GameController(
     newPlayerOneMarker = playerOneMarker,
     newBotName = botName,
     newBotDifficulty = botDifficulty
-
   ) => {
     if (newRoundMode !== "player-player" && newRoundMode !== "player-bot") {
       console.warn(`${newRoundMode} is an Invalid Mode Choice.`);
@@ -639,7 +644,7 @@ function GameController(
       gameTied = true;
       return;
     }
-  }
+  };
 
   // assignGameRound(); // initial round assignment
   startNewRound();
@@ -770,6 +775,7 @@ function GameController(
     startNewRound,
     endRound,
     playerMove,
+    getBoard: gameRound.getBoard,
     //   makeMove,
     //   getBoard: board.getBoard,
     //   getMoveCount,
@@ -777,6 +783,74 @@ function GameController(
     //   getBoardStatus: checkBoardStatus,
   };
 }
+
+function PlayerBotModeGameController() {
+  const gameArea = document.querySelector(".game-area");
+
+  const playerBotDialog = document.querySelector("dialog#player-bot");
+  const playerBotDialogCancelBtn =
+    playerBotDialog.querySelector(".cancel-dialog");
+  const playerBotDialogSubmitBtn =
+    playerBotDialog.querySelector(".submit-dialog");
+
+  const modeSelectionBar = gameArea.querySelector(".modes-container");
+
+  modeSelectionBar.addEventListener("click", openModal);
+
+  playerBotDialog.addEventListener("close", (e) => {
+    console.log("closed");
+  })
+
+  playerBotDialogSubmitBtn.addEventListener("click", validateDialog);
+
+  playerBotDialogCancelBtn.addEventListener("click", closeModal);
+
+  function closeModal(e) {
+    e.preventDefault();
+
+    playerBotDialog.close();
+  }
+
+  function openModal(e) {
+    const mode = e.target.dataset.mode;
+
+    if (!mode) return;
+
+    if (mode === "player-bot") {
+      playerBotDialog.showModal();
+    }
+  }
+
+  function validateDialog(e) {
+    e.preventDefault();
+
+    console.log("validating medium");
+    const form = playerBotDialog.querySelector("form");
+    const playerName = form["player-name"].value;
+    const playerMarker = form["player-marker"].value;
+    const botDifficulty = form["bot-difficulty"].value;
+    form["player-name"].value = "";
+
+    if (playerName.trim() === "") {
+      console.warn("enter a name of at least one valid character length")
+      return;
+    }
+
+    if (!playerMarker) {
+      console.warn("select one marker");
+      return;
+    }
+
+    if (!botDifficulty) {
+      console.warn("select a difficulty choice");
+      return;
+    }
+
+    playerBotDialog.close();
+  }
+}
+
+PlayerBotModeGameController();
 
 function ScreenController() {
   /*
@@ -813,25 +887,38 @@ function ScreenController() {
 */
 
   // use modals to get this details;
-  let gameController = GameController("Player One", "X", "Player Two", "O");
+  // let gameController = GameController("Player One", "X", "Player Two", "O");
 
   const gameArea = document.querySelector(".game-area");
   const playerBotDialog = document.querySelector("dialog#player-bot");
+  const playerBotDialogCancelBtn =
+    playerBotDialog.querySelector(".cancel-dialog");
+  const playerBotDialogSubmitBtn =
+    playerBotDialog.querySelector(".submit-dialog");
   const playerPlayerDialog = document.querySelector("dialog#player-player");
-
-  const modeSelectionBar = gameArea.querySelector(".mode-selection-container");
-
+  const playerPlayerDialogSubmitBtn =
+    playerPlayerDialog.querySelector(".submit-dialog");
+  const playerPlayerDialogCancelBtn =
+    playerPlayerDialog.querySelector(".cancel-dialog");
+  const modeSelectionBar = gameArea.querySelector(".modes-container");
   const announcementsBar = gameArea.querySelector(".announcements");
   const board = gameArea.querySelector(".game-board");
   const startGameBtn = gameArea.querySelector(".start-game");
   const restartGameBtn = gameArea.querySelector(".restart-game");
 
-  startGameBtn.addEventListener("click", startGame);
-  restartGameBtn.addEventListener("click", restartGame);
+  // startGameBtn.addEventListener("click", startGame);
+  // restartGameBtn.addEventListener("click", restartGame);
 
-  modeSelectionBar.addEventListener("click", selectMode);
+  modeSelectionBar.addEventListener("click", openModals);
+  playerBotDialog.addEventListener("close", (e) => {
+    console.log("Player Bot Dialog Closed");
+  });
 
-  function selectMode(e) {
+  playerBotDialog.addEventListener("open", (e) => {
+    console.log("Player Bot Dialog Opened");
+  });
+
+  function openModals(e) {
     const gameMode = e.target.dataset.mode;
 
     if (!gameMode) return;
@@ -847,70 +934,71 @@ function ScreenController() {
     }
     console.log(gameMode);
   }
-  let gameStarted = false;
-  let gameEnded = false;
 
-  const renderBoard = () => {
-    board.textContent = "";
-    for (let i = 0; i < 3; i++) {
-      for (let j = 0; j < 3; j++) {
-        const gameBoard = gameController.getBoard();
-        const cellVal = gameBoard[i][j].getValue();
-        const button = document.createElement("button");
-        button.classList.add("cell");
-        button.setAttribute("data-row", `${i}`);
-        button.setAttribute("data-column", `${j}`);
-        button.setAttribute("data-marker", `${cellVal}`);
+  // let gameStarted = false;
+  // let gameEnded = false;
 
-        button.innerHTML = `${cellVal === "-" ? "&nbsp;" : cellVal}`;
-        board.appendChild(button);
-      }
-    }
-  };
+  // const renderBoard = () => {
+  //   board.textContent = "";
+  //   for (let i = 0; i < 3; i++) {
+  //     for (let j = 0; j < 3; j++) {
+  //       const gameBoard = gameController.getBoard();
+  //       const cellVal = gameBoard[i][j].getValue();
+  //       const button = document.createElement("button");
+  //       button.classList.add("cell");
+  //       button.setAttribute("data-row", `${i}`);
+  //       button.setAttribute("data-column", `${j}`);
+  //       button.setAttribute("data-marker", `${cellVal}`);
 
-  const renderPlayerTurn = () => {
-    const currentPlayer = gameController.getActivePlayer().getName();
+  //       button.innerHTML = `${cellVal === "-" ? "&nbsp;" : cellVal}`;
+  //       board.appendChild(button);
+  //     }
+  //   }
+  // };
 
-    announcementsBar.textContent = `${currentPlayer}'s Turn....`;
-  };
+  // const renderPlayerTurn = () => {
+  //   const currentPlayer = gameController.getActivePlayer().getName();
 
-  const renderRoundWinner = () => {
-    const currentPlayer = gameController.getActivePlayer();
-    const playerName = currentPlayer.getName();
-    const currentMarker = currentPlayer.getMarker();
+  //   announcementsBar.textContent = `${currentPlayer}'s Turn....`;
+  // };
 
-    announcementsBar.textContent = `Winner: ${playerName}. Marker: ${currentMarker}`;
-  };
+  // const renderRoundWinner = () => {
+  //   const currentPlayer = gameController.getActivePlayer();
+  //   const playerName = currentPlayer.getName();
+  //   const currentMarker = currentPlayer.getMarker();
 
-  const renderTie = () => {
-    announcementsBar.textContent = `Tough Match... It's a TIE`;
-  };
+  //   announcementsBar.textContent = `Winner: ${playerName}. Marker: ${currentMarker}`;
+  // };
 
-  function startGame() {
-    const boardState = board.dataset.state;
+  // const renderTie = () => {
+  //   announcementsBar.textContent = `Tough Match... It's a TIE`;
+  // };
 
-    if (boardState === "enabled") {
-      return;
-    }
+  // function startGame() {
+  //   const boardState = board.dataset.state;
 
-    board.dataset.state = "enabled";
-    gameStarted = true;
-    gameEnded = false;
-    renderPlayerTurn();
-    showElement(restartGameBtn);
-    hideElement(startGameBtn);
-  }
+  //   if (boardState === "enabled") {
+  //     return;
+  //   }
 
-  function restartGame() {
-    gameController = GameController();
-    gameStarted = false;
-    gameEnded = true;
-    board.dataset.state = "disabled";
-    renderBoard();
-    announcementsBar.textContent = "Click the Start Button to Start Game";
-    showElement(startGameBtn);
-    hideElement(restartGameBtn);
-  }
+  //   board.dataset.state = "enabled";
+  //   gameStarted = true;
+  //   gameEnded = false;
+  //   renderPlayerTurn();
+  //   showElement(restartGameBtn);
+  //   hideElement(startGameBtn);
+  // }
+
+  // function restartGame() {
+  //   gameController = GameController();
+  //   gameStarted = false;
+  //   gameEnded = true;
+  //   board.dataset.state = "disabled";
+  //   renderBoard();
+  //   announcementsBar.textContent = "Click the Start Button to Start Game";
+  //   showElement(startGameBtn);
+  //   hideElement(restartGameBtn);
+  // }
 
   function showElement(elm) {
     elm.classList.remove("hidden");
@@ -924,59 +1012,59 @@ function ScreenController() {
 
   //   }
 
-  function addMarker(e) {
-    // if board is disabled, don't add marker;
+  // function addMarker(e) {
+  //   // if board is disabled, don't add marker;
 
-    if (!gameStarted) {
-      // throbInstruction();
-      console.log("Start Game with button");
-      return;
-    }
+  //   if (!gameStarted) {
+  //     // throbInstruction();
+  //     console.log("Start Game with button");
+  //     return;
+  //   }
 
-    if (gameEnded) {
-      console.log("game has ended");
-      return;
-    }
+  //   if (gameEnded) {
+  //     console.log("game has ended");
+  //     return;
+  //   }
 
-    const row = e.target.dataset.row;
-    const currentMarker = e.target.dataset.marker;
-    const column = e.target.dataset.column;
+  //   const row = e.target.dataset.row;
+  //   const currentMarker = e.target.dataset.marker;
+  //   const column = e.target.dataset.column;
 
-    if (!row || !column) {
-      return;
-    }
+  //   if (!row || !column) {
+  //     return;
+  //   }
 
-    gameController.makeMove(row, column);
-    renderBoard();
-    const boardState = gameController.getBoardStatus();
+  //   gameController.makeMove(row, column);
+  //   renderBoard();
+  //   const boardState = gameController.getBoardStatus();
 
-    if (
-      boardState.colWin ||
-      boardState.rowWin ||
-      boardState.diagonalLeftToRightWin ||
-      boardState.diagonalRightToLeftWin
-    ) {
-      console.log("winner found");
-      gameEnded = true;
-      renderRoundWinner();
-      return;
-    }
+  //   if (
+  //     boardState.colWin ||
+  //     boardState.rowWin ||
+  //     boardState.diagonalLeftToRightWin ||
+  //     boardState.diagonalRightToLeftWin
+  //   ) {
+  //     console.log("winner found");
+  //     gameEnded = true;
+  //     renderRoundWinner();
+  //     return;
+  //   }
 
-    if (boardState.tie) {
-      console.log("game tied");
-      gameEnded = true;
-      renderTie();
-      return;
-    }
+  //   if (boardState.tie) {
+  //     console.log("game tied");
+  //     gameEnded = true;
+  //     renderTie();
+  //     return;
+  //   }
 
-    renderPlayerTurn();
-  }
+  //   renderPlayerTurn();
+  // }
 
-  renderBoard();
-  board.addEventListener("click", addMarker);
-  announcementsBar.textContent = "Click Start Button to Start Game";
-  showElement(startGameBtn);
-  hideElement(restartGameBtn);
+  // renderBoard();
+  // board.addEventListener("click", addMarker);
+  // announcementsBar.textContent = "Click Start Button to Start Game";
+  // showElement(startGameBtn);
+  // hideElement(restartGameBtn);
 }
 
 // ScreenController();

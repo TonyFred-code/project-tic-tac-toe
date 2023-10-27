@@ -139,8 +139,8 @@ dialog form {
     background-color: green;
 }
 
-.player-player .btn-container .cancel,
-.player-bot .btn-container .cancel {
+.player-player .btn-container .cancel-dialog,
+.player-bot .btn-container .cancel-dialog {
     border: 2px solid red;
     color: white;
     background-color: red;
@@ -152,8 +152,8 @@ dialog form {
     color: green;
 }
 
-.player-player .btn-container .cancel:active,
-.player-bot .btn-container .cancel:active {
+.player-player .btn-container .cancel-dialog:active,
+.player-bot .btn-container .cancel-dialog:active {
     background-color: white;
     color: red;
 }
