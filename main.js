@@ -182,6 +182,7 @@ function PlayerBotRound(
   };
 
   let winnerFound = false;
+  let gameDraw = false;
 
   const checkRow = (row, board) => {
     let firstCell = board[row][0];
@@ -301,25 +302,53 @@ function PlayerBotRound(
     return false;
   }
 
+  const drawGame = () => {
+    const currentBoard = gameBoard.getBoard();
+
+    for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+            let cell = currentBoard[i][j];
+            let marker = cell.getValue();
+            if (marker === cell.getDefaultValue()) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+  }
+
   const move = (row, column) => {
     if (winnerFound) {
       console.warn("Winner Found. Move Disallowed");
       return;
     }
 
+    if (gameDraw) {
+        console.warn("Game Drawn.");
+        return;
+    }
+
     const currentPlayer = getActivePlayer();
+    const playerName = currentPlayer.getName();
+    const playerMarker = currentPlayer.getMarker();
+
+    console.log(
+        `${playerName} wants to add his marker - ${playerMarker} to Row - ${row} Column ${column}`
+      );
+
 
     // check if making a move should be allowed;
     // such as when game is tied or winner has been;
 
     console.log(
-      `Adding marker - ${currentPlayer.getMarker()} to Row - ${row} Column - ${column}`
+      `Adding marker - ${playerMarker} to Row - ${row} Column - ${column}`
     );
 
     const markerAdded = gameBoard.addMarker(
       row,
       column,
-      currentPlayer.getMarker()
+      playerMarker
     );
 
     if (!markerAdded) {
@@ -328,16 +357,22 @@ function PlayerBotRound(
     }
 
     console.log(
-      `Added marker - ${currentPlayer.getMarker()} to Row - ${row} Column - ${column}`
+      `Added marker - ${playerMarker} to Row - ${row} Column - ${column}`
     );
     console.log("Printing New Board");
     console.log(gameBoard.printBoard());
 
     winnerFound = rowWin() || columnWin() || diagonalWin();
+    gameDraw = drawGame();
 
     if (winnerFound) {
       console.info("Winner Found");
       return;
+    }
+
+    if (gameDraw) {
+        console.info("NOBODY WINS.");
+        return;
     }
 
     switchActivePlayer();
@@ -356,18 +391,11 @@ function PlayerBotRound(
   //   player moving method exposed to user;
   const playerMove = (row, column) => {
     const currentPlayer = getActivePlayer();
-    const playerName = currentPlayer.getName();
-    const playerMarker = currentPlayer.getMarker();
 
-    if (playerName === botName) {
+    if (currentPlayer.getName() === botName) {
       console.log("Bot move expected... Hold on...");
       return;
     }
-
-
-    console.log(
-        `${playerName} wants to add his marker - ${playerMarker} to Row - ${row} Column ${column}`
-      );
 
     move(row, column);
   };
