@@ -47,7 +47,47 @@ function GameBoard() {
     return output;
   };
 
+  const checkRow = (row) => {
+    let firstCell = board[row][0];
+    let firstCellMarker = firstCell.getValue();
+    if (firstCellMarker === firstCell.getDefaultValue()) {
+        return false;
+    }
+
+    for (let i = 1; i < 3; i++) {
+        let cell = board[row][i];
+        let marker = cell.getValue();
+        if (marker !== firstCellMarker) {
+            return false;
+        }
+    }
+
+    return true;
+  }
+
+//   checking row wins
+  const rowWin = () => {
+    let rows = {
+        row1: false,
+        row2: false,
+        row3: false,
+    }
+
+    for (let i = 0; i < 3; i++) {
+        rows[`row${i}`] = checkRow(i);
+    }
+
+    for (const key in rows) {
+        if (rows[key]) {
+            return true;
+        }
+    }
+
+    return false;
+  }
+
   return {
+    rowWin,
     printBoard,
     getBoard,
     addMarker,
@@ -62,7 +102,8 @@ function GameBoard() {
  */
 
 function Cell() {
-  let value = "-";
+  let value = "-"; // dash chosen as default cell marker;
+  const defaultValue = value;
 
   // Accept player's marker and change value in the cell;
   const addToken = (marker) => {
@@ -72,9 +113,13 @@ function Cell() {
   // method for retrieving current value of cell through closure
   const getValue = () => value;
 
+  const getDefaultValue = () => defaultValue;
+
+
   return {
     addToken,
     getValue,
+    getDefaultValue,
   };
 }
 
@@ -96,6 +141,7 @@ function HumanPlayer(name, marker) {
   return Object.assign({}, player);
 }
 
+// allows add one choice making logic for bot move making
 function Computer(name, marker) {
   const player = Player(name, marker);
 
@@ -179,8 +225,14 @@ function PlayerBotRound(
   const move = (row, column) => {
     const currentPlayer = getActivePlayer();
 
-    // check if move should be allowed;
-    // such as when game is tied or winner has been
+    // check if making a move should be allowed;
+    // such as when game is tied or winner has been;
+    const rowWin = gameBoard.rowWin();
+
+    if (rowWin) {
+        console.log("Winner found");
+        return;
+    }
 
     console.log(
       `Adding marker - ${currentPlayer.getMarker()} to Row - ${row} Column - ${column}`
@@ -227,7 +279,7 @@ function PlayerBotRound(
     move(row, column);
   };
 
-  console.log(gameBoard.printBoard());
+  console.log(gameBoard.printBoard()); // print board to allow user see board state in console mode;
   printPlayerTurn();
 
   return {
