@@ -47,47 +47,47 @@ function GameBoard() {
     return output;
   };
 
-     //   helper function for checking a row
-     const checkRow = (row) => {
-      let firstCell = board[row][0];
-      let firstCellMarker = firstCell.getValue();
-      if (firstCellMarker === firstCell.getDefaultValue()) {
+  //   helper function for checking a row
+  const checkRow = (row) => {
+    let firstCell = board[row][0];
+    let firstCellMarker = firstCell.getValue();
+    if (firstCellMarker === firstCell.getDefaultValue()) {
+      return false;
+    }
+
+    for (let i = 1; i < 3; i++) {
+      let cell = board[row][i];
+      let marker = cell.getValue();
+      if (marker !== firstCellMarker) {
         return false;
       }
+    }
 
-      for (let i = 1; i < 3; i++) {
-        let cell = board[row][i];
-        let marker = cell.getValue();
-        if (marker !== firstCellMarker) {
-          return false;
-        }
-      }
+    return true;
+  };
 
-      return true;
+  //   checking row logic - checks three rows at a time
+  const rowWin = () => {
+    let rows = {
+      row1: false,
+      row2: false,
+      row3: false,
     };
 
-    //   checking row logic - checks three rows at a time
-    const rowWin = () => {
-      let rows = {
-        row1: false,
-        row2: false,
-        row3: false,
-      };
+    for (let i = 0; i < 3; i++) {
+      rows[`row${i}`] = checkRow(i);
+    }
 
-      for (let i = 0; i < 3; i++) {
-        rows[`row${i}`] = checkRow(i);
+    for (const key in rows) {
+      if (rows[key]) {
+        return true;
       }
+    }
 
-      for (const key in rows) {
-        if (rows[key]) {
-          return true;
-        }
-      }
+    return false;
+  };
 
-      return false;
-    };
-
-      //   helper function for checking a column
+  //   helper function for checking a column
   const checkColumn = (column) => {
     let firstCell = board[0][column];
     let firstCellMarker = firstCell.getValue();
@@ -167,7 +167,6 @@ function GameBoard() {
 
   //   logic for checking if game is a draw;
   const drawGame = () => {
-
     for (let i = 0; i < 3; i++) {
       for (let j = 0; j < 3; j++) {
         let cell = board[i][j];
@@ -232,6 +231,7 @@ function Player(name, marker) {
   };
 }
 
+// creating human player
 function HumanPlayer(name, marker) {
   const player = Player(name, marker);
 
@@ -264,7 +264,7 @@ function Computer(name, marker) {
   const getChoice = (board) => {
     if (!board) return;
 
-    const validMoves = getValidMoves(board.getBoard());
+    const validMoves = getValidMoves(board);
     const index = getRndInt(0, validMoves.length - 1);
     const move = validMoves[index];
     return move;
@@ -273,179 +273,56 @@ function Computer(name, marker) {
   return Object.assign({}, player, { getChoice });
 }
 
-function GameRound(
-  playerOneName = "Player One",
-  playerTwoName = "Player Two",
-  roundMode = "player-player", // player-player or player-bot
-  botDifficulty = "easy",
-) {
-
-
-  let round = null;
-
-  if (roundMode === "player-bot") {
-  let botName = botDifficulty === "easy" ? "Friday" : "Jarvis";
-    round = PlayerBotRound(playerOneName, "X", botName) // set player one to use X as default marker
-  } else if (roundMode === "player-player") {
-    round = PlayerPlayerRound(playerOneName, playerTwoName);
-  }
-
-  return round;
-}
-
-function PlayerPlayerRound(
-  playerOneName = "Player One",
-  playerTwoName = "Player Two"
-) {
+function GameRound() {
   const gameBoard = GameBoard();
 
-  //   use factory functions to create HumanPlayers
-  const players = [
-    HumanPlayer(playerOneName, "X"),
-    HumanPlayer(playerTwoName, "O"),
-  ];
+  const players = [];
 
-  let activePlayer = players[0]; // player with marker "X" goes first
+  const addHumanPlayer = (name, marker) => {
+    if (playersComplete()) {
+      console.warn(`Refused to add ${name}. Players complete.`);
+    }
 
-  // printing player turn msg for console mode;
-  // and enables bot moving if bot is active player;
-
-  const printPlayerTurn = () => {
-    const currentPlayer = getActivePlayer();
-
-    console.log(`${currentPlayer.getName()}'s Turn...`);
+    players.push(HumanPlayer(name, marker));
+    console.info(`Added ${name}. Assigned "${marker}" as marker.`);
+    assignActivePlayer();
   };
 
-  // switches active player
-  //   prints turn for new active player
-  const switchActivePlayer = () => {
-    activePlayer = activePlayer === players[0] ? players[1] : players[0];
-    printPlayerTurn();
+  const addBotPlayer = (name, marker) => {
+    if (playersComplete()) {
+      console.warn(`Refused to add ${name}. Players complete`);
+    }
+
+    players.push(Computer(name, marker));
+    console.info(`Added ${name} as Bot. Assigned "${marker}" as marker.`);
+    assignActivePlayer();
   };
 
-  // allows easier access to active player
-  const getActivePlayer = () => activePlayer;
-
-  //   variables to check against while making move (win or tie)
-  let winnerFound = false;
-  let gameDraw = false;
-
-  //   making move logic
-  //   disallows moving if a winner has been found or game is drawn
-  //   makes move
-  // checks for win or tie after making move
-  //   switch active player to next player
-
-  const move = (row, column) => {
-    if (winnerFound) {
-      console.warn("Winner Found. Move Disallowed");
-      return;
+  const playersComplete = () => {
+    if (players.length === 2) {
+      return true;
+    } else {
+      return false;
     }
-
-    if (gameDraw) {
-      console.warn("Game Drawn.");
-      return;
-    }
-
-    const currentPlayer = getActivePlayer();
-    const playerName = currentPlayer.getName();
-    const playerMarker = currentPlayer.getMarker();
-
-    console.log(
-      `${playerName} wants to add his marker - ${playerMarker} to Row - ${row} Column ${column}`
-    );
-
-    console.log(
-      `Adding marker - ${playerMarker} to Row - ${row} Column - ${column}`
-    );
-
-    const markerAdded = gameBoard.addMarker(row, column, playerMarker);
-
-    if (!markerAdded) {
-      console.warn("Failed to Add Marker");
-      return;
-    }
-
-    console.log(
-      `Added marker - ${playerMarker} to Row - ${row} Column - ${column}`
-    );
-    console.log("Printing New Board");
-    console.log(gameBoard.printBoard());
-
-    winnerFound = gameBoard.rowWin() || gameBoard.columnWin() || gameBoard.diagonalWin();
-    gameDraw = gameBoard.drawGame();
-
-    if (winnerFound) {
-      console.info("Winner Found");
-      return;
-    }
-
-    if (gameDraw) {
-      console.info("NOBODY WINS.");
-      return;
-    }
-
-    switchActivePlayer();
   };
-
-  //   player moving method exposed to user;
-  const playerMove = (row, column) => {
-
-    move(row, column);
-  };
-
-  console.log(gameBoard.printBoard()); // print board to allow user see board state in console mode;
-  printPlayerTurn(); // initial board rendering for console playing mode
-
-  return {
-    players,
-    getActivePlayer,
-    playerMove,
-  }
-}
-
-function PlayerBotRound(
-  playerOneName = "Player One",
-  playerOneMarker = "X",
-  botName = "Bot"
-) {
-  const gameBoard = GameBoard();
-
-  //   set bot marker to "O" if player choose "X"
-  //   set bot marker to "X" if player choose "O"
-  const botMarker = `${playerOneMarker === "X" ? "O" : "X"}`;
-
-  //   use factory functions to create HumanPlayer
-  //   use factory functions to create Bot to play against
-  const players = [
-    HumanPlayer(playerOneName, playerOneMarker),
-    Computer(botName, botMarker),
-  ];
 
   // ensures player with marker = "X" plays first;
-  let activePlayer = players[0].getMarker() === "X" ? players[0] : players[1];
+  let activePlayer = null;
+
+  const assignActivePlayer = () => {
+    if (playersComplete()) {
+      activePlayer = players[0].getMarker() === "X" ? players[0] : players[1];
+    }
+  };
 
   // switches active player
   //   prints turn for new active player
   const switchActivePlayer = () => {
     activePlayer = activePlayer === players[0] ? players[1] : players[0];
-    printPlayerTurn();
   };
 
   // allows easier access to active player
   const getActivePlayer = () => activePlayer;
-
-  // printing player turn msg for console mode;
-  // and enables bot moving if bot is active player;
-  const printPlayerTurn = () => {
-    const currentPlayer = getActivePlayer();
-
-    console.log(`${currentPlayer.getName()}'s Turn...`);
-    if (activePlayer.getName() === botName) {
-      console.log(`${botName} is Thinking`);
-      setTimeout(botMove, 800); // delay to allow bot seem to be thinking;
-    }
-  };
 
   //   variables to check against while making move (win or tie)
   let winnerFound = false;
@@ -469,6 +346,12 @@ function PlayerBotRound(
     }
 
     const currentPlayer = getActivePlayer();
+
+    if (currentPlayer === null) {
+      console.warn("Add two human players or one bot one human to play round");
+      return;
+    }
+
     const playerName = currentPlayer.getName();
     const playerMarker = currentPlayer.getMarker();
 
@@ -496,7 +379,8 @@ function PlayerBotRound(
     console.log("Printing New Board");
     console.log(gameBoard.printBoard());
 
-    winnerFound = gameBoard.rowWin() || gameBoard.columnWin() || gameBoard.diagonalWin();
+    winnerFound =
+      gameBoard.rowWin() || gameBoard.columnWin() || gameBoard.diagonalWin();
     gameDraw = gameBoard.drawGame();
 
     if (winnerFound) {
@@ -512,35 +396,111 @@ function PlayerBotRound(
     switchActivePlayer();
   };
 
+  return {
+    move,
+    getActivePlayer,
+    addBotPlayer,
+    addHumanPlayer,
+    getBoard: gameBoard.getBoard,
+    printBoard: gameBoard.printBoard,
+  };
+}
+
+function PlayerPlayerRound(
+  playerOneName = "Player One",
+  playerTwoName = "Player Two"
+) {
+  const gameRound = GameRound();
+
+  gameRound.addHumanPlayer(playerOneName, "X");
+  gameRound.addHumanPlayer(playerTwoName, "O");
+
+  const printPlayerTurn = () => {
+    const currentPlayer = gameRound.getActivePlayer();
+
+    console.log(`${currentPlayer.getName()}'s Turn...`);
+  }
+
+  //   player moving method exposed to user;
+  const playerMove = (row, column) => {
+    gameRound.move(row, column);
+    printPlayerTurn();
+  };
+
+  console.log(gameRound.printBoard()); // print board to allow user see board state in console mode;
+  printPlayerTurn(); // initial board rendering for console playing mode
+
+  return {
+    playerMove,
+  };
+}
+
+function PlayerBotRound(
+  playerOneName = "Player One",
+  playerOneMarker = "X",
+  botName = "Bot"
+) {
+  const gameRound = GameRound();
+
+  //   set bot marker to "O" if player choose "X"
+  //   set bot marker to "X" if player choose "O"
+  const botMarker = `${playerOneMarker === "X" ? "O" : "X"}`;
+
+  gameRound.addHumanPlayer(playerOneName, playerOneMarker);
+  gameRound.addBotPlayer(botName, botMarker);
+
+  // printing player turn msg for console mode;
+  // and enables bot moving if bot is active player;
+  const printPlayerTurn = () => {
+    const currentPlayer = gameRound.getActivePlayer();
+
+    console.log(`${currentPlayer.getName()}'s Turn...`);
+  };
+
+  const checkNextMove = () => {
+    const activePlayer = gameRound.getActivePlayer();
+
+    if (activePlayer.getName() === botName) {
+      console.log(`${botName} is Thinking`);
+      setTimeout(botMove, 800); // delay to allow bot seem to be thinking;
+    }
+  }
+
   //   bot move method not exposed to user;
   const botMove = () => {
-    const choice = activePlayer.getChoice(gameBoard);
+    const board = gameRound.getBoard();
+    const bot = gameRound.getActivePlayer();
+    const choice = bot.getChoice(board);
     const row = choice[0];
     const column = choice[1];
 
     console.log(`${botName} has finished thinking. Making a move now...`);
-    move(row, column);
+    gameRound.move(row, column);
+    printPlayerTurn();
+    checkNextMove();
   };
 
   //   player moving method exposed to user;
   const playerMove = (row, column) => {
-    const currentPlayer = getActivePlayer();
+    const currentPlayer = gameRound.getActivePlayer();
 
     if (currentPlayer.getName() === botName) {
       console.log("Bot move expected... Hold on...");
       return;
     }
 
-    move(row, column);
+    gameRound.move(row, column);
+    printPlayerTurn();
+    checkNextMove();
   };
 
-  console.log(gameBoard.printBoard()); // print board to allow user see board state in console mode;
+  console.log(gameRound.printBoard()); // print board to allow user see board state in console mode;
   printPlayerTurn(); // initial board rendering for console playing mode
+  checkNextMove();
+
 
   return {
-    players,
-    getActivePlayer,
-    playerMove,
+    playerMove
   };
 }
 
