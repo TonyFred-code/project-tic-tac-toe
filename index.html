@@ -75,6 +75,7 @@
           <div class="row">
             <label for="player-name">Player</label>
             <input
+              required
               type="text"
               name="player-name"
               placeholder="Enter Player Name"
@@ -85,29 +86,59 @@
           <div class="row marker-choices">
             <h4>Choose Marker</h4>
             <label for="player-marker-x">
-              <input type="radio" name="player-marker" id="player-marker-x" value="X" checked/>
+              <input
+                required
+                type="radio"
+                name="player-marker"
+                id="player-marker-x"
+                value="X"
+                checked
+              />
               X</label
             >
 
             <label for="player-marker-o">
-              <input type="radio" name="player-marker" id="player-marker-o" value="O"> O
+              <input
+                required
+                type="radio"
+                name="player-marker"
+                id="player-marker-o"
+                value="O"
+              />
+              O
             </label>
           </div>
 
           <div class="row bot-difficulty-choices">
             <h4>Choose Bot Difficulty</h4>
             <label for="easy-bot">
-              <input type="radio" name="bot-difficulty" id="easy-bot" value="easy" checked />
+              <input
+                required
+                type="radio"
+                name="bot-difficulty"
+                id="easy-bot"
+                value="easy"
+                checked
+              />
               Easy</label
             >
 
             <label for="hard-bot">
-              <input type="radio" name="bot-difficulty" id="hard-bot" value="hard"> Hard
+              <input
+                required
+                type="radio"
+                name="bot-difficulty"
+                id="hard-bot"
+                value="hard"
+              />
+              Hard
             </label>
           </div>
           <div class="row btn-container">
-            <button class="cancel-dialog">Cancel</button>
-            <button class="submit-dialog">Submit</button>
+            <button class="cancel-dialog" type="button">Cancel</button>
+            <button class="submit-dialog" type="submit" formmethod="dialog">
+              Submit
+            </button>
           </div>
         </form>
       </dialog>

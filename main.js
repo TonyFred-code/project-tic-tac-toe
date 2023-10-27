@@ -776,20 +776,19 @@ function GameController(
     endRound,
     playerMove,
     getBoard: gameRound.getBoard,
-    //   makeMove,
-    //   getBoard: board.getBoard,
-    //   getMoveCount,
-    //   getActivePlayer,
-    //   getBoardStatus: checkBoardStatus,
   };
 }
 
 function PlayerBotModeGameController() {
+  let gameRound = null;
+
   const gameArea = document.querySelector(".game-area");
 
+  const modeSelectionSection = gameArea.querySelector(".mode-selection-container");
   const playerBotDialog = document.querySelector("dialog#player-bot");
+  const playerBotForm = playerBotDialog.querySelector("form");
   const playerBotDialogCancelBtn =
-    playerBotDialog.querySelector(".cancel-dialog");
+  playerBotDialog.querySelector(".cancel-dialog");
   const playerBotDialogSubmitBtn =
     playerBotDialog.querySelector(".submit-dialog");
 
@@ -802,6 +801,8 @@ function PlayerBotModeGameController() {
   })
 
   playerBotDialogSubmitBtn.addEventListener("click", validateDialog);
+  playerBotForm.addEventListener("submit", validateDialog);
+
 
   playerBotDialogCancelBtn.addEventListener("click", closeModal);
 
@@ -832,7 +833,8 @@ function PlayerBotModeGameController() {
     form["player-name"].value = "";
 
     if (playerName.trim() === "") {
-      console.warn("enter a name of at least one valid character length")
+      console.warn("enter a name of at least one valid character length");
+      form["player-name"].focus();
       return;
     }
 
@@ -846,7 +848,18 @@ function PlayerBotModeGameController() {
       return;
     }
 
+    hideElement(modeSelectionSection)
     playerBotDialog.close();
+  }
+
+  function showElement(elm) {
+    if (!elm) return;
+    elm.classList.remove("hidden");
+  }
+
+  function hideElement(elm) {
+    if (!elm) return;
+    elm.classList.add("hidden");
   }
 }
 
