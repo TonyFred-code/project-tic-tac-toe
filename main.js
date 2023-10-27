@@ -5,7 +5,7 @@
  ** "O": Player Two's marker
  */
 
- function Cell() {
+function Cell() {
   let value = "-"; // dash chosen as default cell marker;
   const defaultValue = value;
 
@@ -333,7 +333,7 @@ function GameRound() {
     winnerMarker: "",
     gameTied: false,
     gameWon: false,
-  }
+  };
 
   const getRoundState = () => roundState;
 
@@ -395,7 +395,9 @@ function GameRound() {
     if (roundState.gameWon) {
       roundState.winnerName = playerName;
       roundState.winnerMarker = playerMarker;
-      console.info(`${roundState.winnerName}  Wins this round. Marker ${playerMarker} takes it.`);
+      console.info(
+        `${roundState.winnerName}  Wins this round. Marker ${playerMarker} takes it.`
+      );
       return;
     }
 
@@ -431,11 +433,10 @@ function PlayerPlayerRound(
     const currentPlayer = gameRound.getActivePlayer();
 
     console.log(`${currentPlayer.getName()}'s Turn...`);
-  }
+  };
 
   //   player moving method exposed to user;
   const playerMove = (row, column) => {
-
     gameRound.move(row, column);
     const roundState = gameRound.getRoundState();
 
@@ -449,7 +450,7 @@ function PlayerPlayerRound(
   printPlayerTurn(); // initial board rendering for console playing mode
 
   return {
-    getRoundState: gameRound.getRoundState(),
+    getRoundState: gameRound.getRoundState,
     playerMove,
   };
 }
@@ -482,10 +483,9 @@ function PlayerBotRound(
       console.log(`${botName} is Thinking`);
       setTimeout(botMove, 800); // delay to allow bot seem to be thinking;
     }
-  }
+  };
 
   const makeMove = (row, column) => {
-
     gameRound.move(row, column);
 
     const roundState = gameRound.getRoundState();
@@ -493,7 +493,7 @@ function PlayerBotRound(
     if (roundState.gameTied || roundState.gameWon) return;
     printPlayerTurn();
     checkNextMove();
-  }
+  };
 
   //   bot move method not exposed to user;
   const botMove = () => {
@@ -523,149 +523,258 @@ function PlayerBotRound(
   printPlayerTurn(); // initial board rendering for console playing mode
   checkNextMove();
 
-
   return {
-    getRoundState: gameRound.getRoundState(),
+    getRoundState: gameRound.getRoundState,
     playerMove,
   };
 }
 
 function GameController(
   playerOneName = "Player One",
+  playerTwoName = "Player Two",
   playerOneMarker = "X",
   roundMode = "player-player",
-  playerTwoName = "Player Two",
-  playerTwoMarker = "O",
+  botName = "Jarvis",
   botDifficulty = "easy"
 ) {
-  const board = GameBoard();
+  let gameRound = null;
 
-  const players = [
-    Player(playerOneName, playerOneMarker),
-    Player(playerTwoName, playerTwoMarker),
-  ];
-
-  let activePlayer = players[0];
-
-  const switchActivePlayer = () => {
-    activePlayer = activePlayer === players[0] ? players[1] : players[0];
-  };
-
-  const getActivePlayer = () => activePlayer;
-
-  const checkRow = (row, marker) => {
-    for (let i = 0; i < 3; i++) {
-      if (row[i].getValue() !== marker) {
-        return false;
-      }
+  const assignGameRound = (
+    roundName = roundMode,
+    newPlayerOneName = playerOneName,
+    newPlayerTwoName = playerTwoName,
+    newPlayerOneMarker = playerOneMarker,
+    newBotName = botName,
+    newBotDifficulty = botDifficulty
+    ) => {
+    if (roundName === "player-player") {
+      gameRound = PlayerPlayerRound(newPlayerOneName, newPlayerTwoName);
+    } else if (roundName === "player-bot") {
+      gameRound = PlayerBotRound(newPlayerOneName, newPlayerOneMarker, newBotName);
     }
-
-    return true;
+    console.log(gameRound);
   };
 
-  const checkColumn = (board, colIndex, marker) => {
-    for (let i = 0; i < 3; i++) {
-      if (board[i][colIndex].getValue() !== marker) {
-        return false;
-      }
-    }
+  const getCurrentRound = () => roundMode;
 
-    return true;
-  };
+  const changeCurrentRound = (
+    newRoundMode,
+    newPlayerOneName = playerOneName,
+    newPlayerTwoName = playerTwoName,
+    newPlayerOneMarker = playerOneMarker,
+    newBotName = botName,
+    newBotDifficulty = botDifficulty
 
-  const checkTie = (board, defaultMarker) => {
-    for (let i = 0; i < 3; i++) {
-      for (let j = 0; j < 3; j++) {
-        if (board[i][j] === defaultMarker) {
-          return false;
-        }
-      }
-    }
-
-    return true;
-  };
-
-  const checkBoardStatus = () => {
-    const currentBoard = board.getBoard();
-    const playerMarker = getActivePlayer().getMarker();
-
-    let colWin =
-      checkColumn(currentBoard, 0, playerMarker) ||
-      checkColumn(currentBoard, 1, playerMarker) ||
-      checkColumn(currentBoard, 2, playerMarker);
-    let rowWin =
-      checkRow(currentBoard[0], playerMarker) ||
-      checkRow(currentBoard[1], playerMarker) ||
-      checkRow(currentBoard[2], playerMarker);
-
-    let diagonalLeftToRightWin =
-      currentBoard[0][0].getValue() === playerMarker &&
-      currentBoard[1][1].getValue() === playerMarker &&
-      currentBoard[2][2].getValue() === playerMarker;
-
-    let diagonalRightToLeftWin =
-      currentBoard[0][2].getValue() === playerMarker &&
-      currentBoard[1][1].getValue() === playerMarker &&
-      currentBoard[2][0].getValue() === playerMarker;
-
-    let tie = false;
-    if (getMoveCount() >= 9) {
-      tie = checkTie(currentBoard, "-");
-    }
-
-    return {
-      colWin,
-      rowWin,
-      diagonalLeftToRightWin,
-      diagonalRightToLeftWin,
-      tie,
-    };
-  };
-
-  let moveCount = 0;
-
-  const getMoveCount = () => moveCount;
-
-  const makeMove = (row, column) => {
-    const markerAdded = board.addMarker(
-      row,
-      column,
-      getActivePlayer().getMarker()
-    );
-
-    if (!markerAdded) {
+  ) => {
+    if (newRoundMode !== "player-player" && newRoundMode !== "player-bot") {
+      console.warn(`${newRoundMode} is an Invalid Mode Choice.`);
+      console.info(
+        `Valid Modes: "player-player" && "player-bot". NB: Case sensitive`
+      );
       return;
     }
 
-    // count move
-    moveCount++;
-
-    // check for win and tie
-    let boardStatus = null;
-
-    // check to reduce a little how many checks are performed
-    if (moveCount >= 5) {
-      boardStatus = checkBoardStatus();
-
-      if (
-        boardStatus.colWin ||
-        boardStatus.diagonalLeftToRightWin ||
-        boardStatus.diagonalRightToLeftWin ||
-        boardStatus.rowWin ||
-        boardStatus.tie
-      ) {
-        return;
-      }
-    }
-    switchActivePlayer();
+    roundMode = newRoundMode;
+    assignGameRound(
+      newRoundMode,
+      newPlayerOneName,
+      newPlayerTwoName,
+      newPlayerOneMarker,
+      newBotName
+    );
+    console.info(
+      `Round change successful. New Round Mode is "${newRoundMode}"`
+    );
   };
 
+  let roundStarted = false;
+  let roundEnded = false;
+
+  const startNewRound = () => {
+    roundStarted = true;
+    roundEnded = false;
+    assignGameRound();
+    console.log(getCurrentRound());
+  };
+
+  const endRound = () => {
+    roundEnded = true;
+    roundStarted = false;
+  };
+
+  let winnerFound = false;
+  let gameTied = false;
+
+  const playerMove = (row, column) => {
+    if (roundEnded || !roundStarted) {
+      console.log("Move disallowed. Start Game First");
+      return;
+    }
+
+    if (gameRound === null) {
+      console.log("Failed to find game Round. Start New Round.");
+      return;
+    }
+
+    if (winnerFound) {
+      console.log("Winner Found");
+      return;
+    }
+
+    if (gameTied) {
+      console.log("Game Tied. Start New Round");
+      return;
+    }
+
+    gameRound.playerMove(row, column);
+
+    const gameState = gameRound.getRoundState();
+
+    if (gameState.gameWon) {
+      winnerFound = true;
+      return;
+    }
+
+    if (gameState.gameTied) {
+      gameTied = true;
+      return;
+    }
+  }
+
+  // assignGameRound(); // initial round assignment
+  startNewRound();
+
+  // const players = [
+  //   Player(playerOneName, playerOneMarker),
+  //   Player(playerTwoName, playerTwoMarker),
+  // ];
+
+  // let activePlayer = players[0];
+
+  // const switchActivePlayer = () => {
+  //   activePlayer = activePlayer === players[0] ? players[1] : players[0];
+  // };
+
+  // const getActivePlayer = () => activePlayer;
+
+  // const checkRow = (row, marker) => {
+  //   for (let i = 0; i < 3; i++) {
+  //     if (row[i].getValue() !== marker) {
+  //       return false;
+  //     }
+  //   }
+
+  //   return true;
+  // };
+
+  // const checkColumn = (board, colIndex, marker) => {
+  //   for (let i = 0; i < 3; i++) {
+  //     if (board[i][colIndex].getValue() !== marker) {
+  //       return false;
+  //     }
+  //   }
+
+  //   return true;
+  // };
+
+  // const checkTie = (board, defaultMarker) => {
+  //   for (let i = 0; i < 3; i++) {
+  //     for (let j = 0; j < 3; j++) {
+  //       if (board[i][j] === defaultMarker) {
+  //         return false;
+  //       }
+  //     }
+  //   }
+
+  //   return true;
+  // };
+
+  // const checkBoardStatus = () => {
+  //   const currentBoard = board.getBoard();
+  //   const playerMarker = getActivePlayer().getMarker();
+
+  //   let colWin =
+  //     checkColumn(currentBoard, 0, playerMarker) ||
+  //     checkColumn(currentBoard, 1, playerMarker) ||
+  //     checkColumn(currentBoard, 2, playerMarker);
+  //   let rowWin =
+  //     checkRow(currentBoard[0], playerMarker) ||
+  //     checkRow(currentBoard[1], playerMarker) ||
+  //     checkRow(currentBoard[2], playerMarker);
+
+  //   let diagonalLeftToRightWin =
+  //     currentBoard[0][0].getValue() === playerMarker &&
+  //     currentBoard[1][1].getValue() === playerMarker &&
+  //     currentBoard[2][2].getValue() === playerMarker;
+
+  //   let diagonalRightToLeftWin =
+  //     currentBoard[0][2].getValue() === playerMarker &&
+  //     currentBoard[1][1].getValue() === playerMarker &&
+  //     currentBoard[2][0].getValue() === playerMarker;
+
+  //   let tie = false;
+  //   if (getMoveCount() >= 9) {
+  //     tie = checkTie(currentBoard, "-");
+  //   }
+
+  //   return {
+  //     colWin,
+  //     rowWin,
+  //     diagonalLeftToRightWin,
+  //     diagonalRightToLeftWin,
+  //     tie,
+  //   };
+  // };
+
+  // let moveCount = 0;
+
+  // const getMoveCount = () => moveCount;
+
+  // const makeMove = (row, column) => {
+  //   const markerAdded = board.addMarker(
+  //     row,
+  //     column,
+  //     getActivePlayer().getMarker()
+  //   );
+
+  //   if (!markerAdded) {
+  //     return;
+  //   }
+
+  //   // count move
+  //   moveCount++;
+
+  //   // check for win and tie
+  //   let boardStatus = null;
+
+  //   // check to reduce a little how many checks are performed
+  //   if (moveCount >= 5) {
+  //     boardStatus = checkBoardStatus();
+
+  //     if (
+  //       boardStatus.colWin ||
+  //       boardStatus.diagonalLeftToRightWin ||
+  //       boardStatus.diagonalRightToLeftWin ||
+  //       boardStatus.rowWin ||
+  //       boardStatus.tie
+  //     ) {
+  //       return;
+  //     }
+  //   }
+  //   switchActivePlayer();
+  // };
+
   return {
-    makeMove,
-    getBoard: board.getBoard,
-    getMoveCount,
-    getActivePlayer,
-    getBoardStatus: checkBoardStatus,
+    getCurrentRound,
+    changeCurrentRound,
+    startNewRound,
+    endRound,
+    playerMove,
+    //   makeMove,
+    //   getBoard: board.getBoard,
+    //   getMoveCount,
+    //   getActivePlayer,
+    //   getBoardStatus: checkBoardStatus,
   };
 }
 
@@ -870,4 +979,4 @@ function ScreenController() {
   hideElement(restartGameBtn);
 }
 
-ScreenController();
+// ScreenController();
