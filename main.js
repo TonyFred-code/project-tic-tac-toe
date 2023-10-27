@@ -325,8 +325,17 @@ function GameRound() {
   const getActivePlayer = () => activePlayer;
 
   //   variables to check against while making move (win or tie)
-  let winnerFound = false;
-  let gameDraw = false;
+  // let winnerFound = false;
+  // let gameDraw = false;
+
+  const roundState = {
+    winnerName: "",
+    winnerMarker: "",
+    gameTied: false,
+    gameWon: false,
+  }
+
+  const getRoundState = () => roundState;
 
   //   making move logic
   //   disallows moving if a winner has been found or game is drawn
@@ -335,12 +344,12 @@ function GameRound() {
   //   switch active player to next player
 
   const move = (row, column) => {
-    if (winnerFound) {
+    if (roundState.gameWon) {
       console.warn("Winner Found. Move Disallowed");
       return;
     }
 
-    if (gameDraw) {
+    if (roundState.gameTied) {
       console.warn("Game Drawn.");
       return;
     }
@@ -379,16 +388,18 @@ function GameRound() {
     console.log("Printing New Board");
     console.log(gameBoard.printBoard());
 
-    winnerFound =
+    roundState.gameWon =
       gameBoard.rowWin() || gameBoard.columnWin() || gameBoard.diagonalWin();
-    gameDraw = gameBoard.drawGame();
+    roundState.gameTied = gameBoard.drawGame();
 
-    if (winnerFound) {
-      console.info("Winner Found");
+    if (roundState.gameWon) {
+      roundState.winnerName = playerName;
+      roundState.winnerMarker = playerMarker;
+      console.info(`${roundState.winnerName}  Wins this round. Marker ${playerMarker} takes it.`);
       return;
     }
 
-    if (gameDraw) {
+    if (roundState.gameTied) {
       console.info("NOBODY WINS.");
       return;
     }
@@ -403,6 +414,7 @@ function GameRound() {
     addHumanPlayer,
     getBoard: gameBoard.getBoard,
     printBoard: gameBoard.printBoard,
+    getRoundState,
   };
 }
 
@@ -423,7 +435,13 @@ function PlayerPlayerRound(
 
   //   player moving method exposed to user;
   const playerMove = (row, column) => {
+
     gameRound.move(row, column);
+    const roundState = gameRound.getRoundState();
+
+    if (roundState.gameTied || roundState.gameWon) {
+      return;
+    }
     printPlayerTurn();
   };
 
@@ -431,6 +449,7 @@ function PlayerPlayerRound(
   printPlayerTurn(); // initial board rendering for console playing mode
 
   return {
+    getRoundState: gameRound.getRoundState(),
     playerMove,
   };
 }
@@ -450,7 +469,6 @@ function PlayerBotRound(
   gameRound.addBotPlayer(botName, botMarker);
 
   // printing player turn msg for console mode;
-  // and enables bot moving if bot is active player;
   const printPlayerTurn = () => {
     const currentPlayer = gameRound.getActivePlayer();
 
@@ -466,6 +484,17 @@ function PlayerBotRound(
     }
   }
 
+  const makeMove = (row, column) => {
+
+    gameRound.move(row, column);
+
+    const roundState = gameRound.getRoundState();
+
+    if (roundState.gameTied || roundState.gameWon) return;
+    printPlayerTurn();
+    checkNextMove();
+  }
+
   //   bot move method not exposed to user;
   const botMove = () => {
     const board = gameRound.getBoard();
@@ -475,9 +504,7 @@ function PlayerBotRound(
     const column = choice[1];
 
     console.log(`${botName} has finished thinking. Making a move now...`);
-    gameRound.move(row, column);
-    printPlayerTurn();
-    checkNextMove();
+    makeMove(row, column);
   };
 
   //   player moving method exposed to user;
@@ -489,9 +516,7 @@ function PlayerBotRound(
       return;
     }
 
-    gameRound.move(row, column);
-    printPlayerTurn();
-    checkNextMove();
+    makeMove(row, column);
   };
 
   console.log(gameRound.printBoard()); // print board to allow user see board state in console mode;
@@ -500,7 +525,8 @@ function PlayerBotRound(
 
 
   return {
-    playerMove
+    getRoundState: gameRound.getRoundState(),
+    playerMove,
   };
 }
 
