@@ -784,6 +784,8 @@ function PlayerBotModeGameController() {
 
   const gameArea = document.querySelector(".game-area");
 
+  const gameBoardPlayerDetailsDiv = gameArea.querySelector(".board-announcements-container")
+  const playerDetailsDiv = gameArea.querySelector(".announcements .player-bot-mode");
   const modeSelectionSection = gameArea.querySelector(".mode-selection-container");
   const playerBotDialog = document.querySelector("dialog#player-bot");
   const playerBotForm = playerBotDialog.querySelector("form");
@@ -848,7 +850,9 @@ function PlayerBotModeGameController() {
       return;
     }
 
-    hideElement(modeSelectionSection)
+    hideElement(modeSelectionSection);
+    showElement(gameBoardPlayerDetailsDiv);
+    showElement(playerDetailsDiv);
     playerBotDialog.close();
   }
 

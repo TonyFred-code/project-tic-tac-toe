@@ -30,8 +30,38 @@
             </button>
           </div>
         </div>
-        <div class="board-announcements-container hidden">
-          <div class="announcements">Click Start Button To Start Game</div>
+        <div class="board-announcements-container hidden" data-mode="player-player">
+          <div class="announcements player-details-score-container">
+            <!-- look during player-bot mode -->
+            <div class="player-bot-mode hidden">
+              <div class="player-details">
+                <div class="player-name">Player</div>
+                <div class="player-marker">X</div>
+              </div>
+              <div class="vs-text">VS</div>
+              <div class="bot-details">
+                <div class="bot-name">AI</div>
+                <div class="bot-marker">O</div>
+              </div>
+            </div>
+
+            <!-- look during player-player mode -->
+            <div class="player-player-mode hidden">
+              <div class="player-one-details">
+                <div class="player-one-name">Player One</div>
+                <div class="player-one-marker">X</div>
+              </div>
+              <div class="players-score-displaye">
+                <span class="player-one-score">0</span>
+                :
+                <span class="player-two-score">0</span>
+              </div>
+              <div class="player-two-details">
+                <div class="player-two-name">Player Two</div>
+                <div class="player-two-marker">O</div>
+              </div>
+            </div>
+          </div>
           <div class="game-board" data-state="disabled"></div>
           <div class="game-functions">
             <button class="start-game">START</button>
