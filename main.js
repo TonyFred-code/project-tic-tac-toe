@@ -262,6 +262,45 @@ function PlayerBotRound(
       return false;
   }
 
+
+  const checkDiagonal =  (columnIndexArr, board) => {
+    let firstCell = board[0][columnIndexArr[0]];
+    let firstCellMarker = firstCell.getValue();
+    if (firstCellMarker === firstCell.getDefaultValue()) {
+        return false;
+    }
+
+    for (let i = 1; i < 3; i++) {
+        let cell = board[i][columnIndexArr[i]];
+        let marker = cell.getValue();
+        if (marker !== firstCellMarker) {
+          return false;
+        }
+    }
+
+    return true;
+  }
+
+  const diagonalWin = () => {
+    let diagonal = {
+        leftToRight: false,
+        RightToLeft: false,
+    }
+
+    const currentBoard = gameBoard.getBoard();
+
+    diagonal.RightToLeft = checkDiagonal([2, 1, 0], currentBoard);
+    diagonal.leftToRight = checkDiagonal([0, 1, 2], currentBoard);
+
+    for (const key in diagonal) {
+        if (diagonal[key]) {
+            return true;
+        }
+    }
+
+    return false;
+  }
+
   const move = (row, column) => {
     if (winnerFound) {
       console.warn("Winner Found. Move Disallowed");
@@ -294,7 +333,7 @@ function PlayerBotRound(
     console.log("Printing New Board");
     console.log(gameBoard.printBoard());
 
-    winnerFound = rowWin() || columnWin();
+    winnerFound = rowWin() || columnWin() || diagonalWin();
 
     if (winnerFound) {
       console.info("Winner Found");
