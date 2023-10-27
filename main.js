@@ -273,20 +273,25 @@ function Computer(name, marker) {
   return Object.assign({}, player, { getChoice });
 }
 
-// function GameRound(
-//   playerOneName = "Player One",
-//   playerTwoName = "Player Two",
-//   roundMode = "player-player", // player-player or player-bot
-//   botDifficulty = "easy",
-// ) {
+function GameRound(
+  playerOneName = "Player One",
+  playerTwoName = "Player Two",
+  roundMode = "player-player", // player-player or player-bot
+  botDifficulty = "easy",
+) {
 
-//   let round = PlayerPlayerRound(playerOneName, playerTwoName);
 
-//   if (roundMode === "player-player") {
-//     round = PlayerBotRound(playerOneName, "X") // set player one to use X as default marker
-//   }
+  let round = null;
 
-// }
+  if (roundMode === "player-bot") {
+  let botName = botDifficulty === "easy" ? "Friday" : "Jarvis";
+    round = PlayerBotRound(playerOneName, "X", botName) // set player one to use X as default marker
+  } else if (roundMode === "player-player") {
+    round = PlayerPlayerRound(playerOneName, playerTwoName);
+  }
+
+  return round;
+}
 
 function PlayerPlayerRound(
   playerOneName = "Player One",
@@ -367,8 +372,8 @@ function PlayerPlayerRound(
     console.log("Printing New Board");
     console.log(gameBoard.printBoard());
 
-    winnerFound = rowWin() || columnWin() || diagonalWin();
-    gameDraw = drawGame();
+    winnerFound = gameBoard.rowWin() || gameBoard.columnWin() || gameBoard.diagonalWin();
+    gameDraw = gameBoard.drawGame();
 
     if (winnerFound) {
       console.info("Winner Found");
@@ -445,145 +450,6 @@ function PlayerBotRound(
   //   variables to check against while making move (win or tie)
   let winnerFound = false;
   let gameDraw = false;
-
-  //   helper function for checking a row
-  const checkRow = (row, board) => {
-    let firstCell = board[row][0];
-    let firstCellMarker = firstCell.getValue();
-    if (firstCellMarker === firstCell.getDefaultValue()) {
-      return false;
-    }
-
-    for (let i = 1; i < 3; i++) {
-      let cell = board[row][i];
-      let marker = cell.getValue();
-      if (marker !== firstCellMarker) {
-        return false;
-      }
-    }
-
-    return true;
-  };
-
-  //   checking row logic - checks three rows at a time
-  const rowWin = () => {
-    let rows = {
-      row1: false,
-      row2: false,
-      row3: false,
-    };
-    const currentBoard = gameBoard.getBoard();
-
-    for (let i = 0; i < 3; i++) {
-      rows[`row${i}`] = checkRow(i, currentBoard);
-    }
-
-    for (const key in rows) {
-      if (rows[key]) {
-        return true;
-      }
-    }
-
-    return false;
-  };
-
-  //   helper function for checking a column
-  const checkColumn = (column, board) => {
-    let firstCell = board[0][column];
-    let firstCellMarker = firstCell.getValue();
-    if (firstCellMarker === firstCell.getDefaultValue()) {
-      return false;
-    }
-
-    for (let i = 1; i < 3; i++) {
-      let cell = board[i][column];
-      let marker = cell.getValue();
-      if (marker !== firstCellMarker) {
-        return false;
-      }
-    }
-
-    return true;
-  };
-
-  //   column win checking logic - checks three columns at a time;
-  const columnWin = () => {
-    let columns = {
-      column1: false,
-      column2: false,
-      column3: false,
-    };
-    const currentBoard = gameBoard.getBoard();
-
-    for (let i = 0; i < 3; i++) {
-      columns[`column${i}`] = checkColumn(i, currentBoard);
-    }
-
-    for (const key in columns) {
-      if (columns[key]) {
-        return true;
-      }
-    }
-
-    return false;
-  };
-
-  //   helper function for checking a diagonal win
-  const checkDiagonal = (columnIndexArr, board) => {
-    let firstCell = board[0][columnIndexArr[0]];
-    let firstCellMarker = firstCell.getValue();
-    if (firstCellMarker === firstCell.getDefaultValue()) {
-      return false;
-    }
-
-    for (let i = 1; i < 3; i++) {
-      let cell = board[i][columnIndexArr[i]];
-      let marker = cell.getValue();
-      if (marker !== firstCellMarker) {
-        return false;
-      }
-    }
-
-    return true;
-  };
-
-  //   checking the two diagonals - leftToRight and rightToLeft
-  const diagonalWin = () => {
-    let diagonal = {
-      leftToRight: false,
-      RightToLeft: false,
-    };
-
-    const currentBoard = gameBoard.getBoard();
-
-    diagonal.RightToLeft = checkDiagonal([2, 1, 0], currentBoard);
-    diagonal.leftToRight = checkDiagonal([0, 1, 2], currentBoard);
-
-    for (const key in diagonal) {
-      if (diagonal[key]) {
-        return true;
-      }
-    }
-
-    return false;
-  };
-
-  //   logic for checking if game is a draw;
-  const drawGame = () => {
-    const currentBoard = gameBoard.getBoard();
-
-    for (let i = 0; i < 3; i++) {
-      for (let j = 0; j < 3; j++) {
-        let cell = currentBoard[i][j];
-        let marker = cell.getValue();
-        if (marker === cell.getDefaultValue()) {
-          return false;
-        }
-      }
-    }
-
-    return true;
-  };
 
   //   making move logic
   //   disallows moving if a winner has been found or game is drawn
