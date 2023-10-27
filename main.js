@@ -47,47 +47,7 @@ function GameBoard() {
     return output;
   };
 
-  const checkRow = (row) => {
-    let firstCell = board[row][0];
-    let firstCellMarker = firstCell.getValue();
-    if (firstCellMarker === firstCell.getDefaultValue()) {
-        return false;
-    }
-
-    for (let i = 1; i < 3; i++) {
-        let cell = board[row][i];
-        let marker = cell.getValue();
-        if (marker !== firstCellMarker) {
-            return false;
-        }
-    }
-
-    return true;
-  }
-
-//   checking row wins
-  const rowWin = () => {
-    let rows = {
-        row1: false,
-        row2: false,
-        row3: false,
-    }
-
-    for (let i = 0; i < 3; i++) {
-        rows[`row${i}`] = checkRow(i);
-    }
-
-    for (const key in rows) {
-        if (rows[key]) {
-            return true;
-        }
-    }
-
-    return false;
-  }
-
   return {
-    rowWin,
     printBoard,
     getBoard,
     addMarker,
@@ -114,7 +74,6 @@ function Cell() {
   const getValue = () => value;
 
   const getDefaultValue = () => defaultValue;
-
 
   return {
     addToken,
@@ -222,17 +181,59 @@ function PlayerBotRound(
     console.log(`${currentPlayer.getName()}'s Turn...`);
   };
 
+  let winnerFound = false;
+
+  const checkRow = (row, board) => {
+    let firstCell = board[row][0];
+    let firstCellMarker = firstCell.getValue();
+    if (firstCellMarker === firstCell.getDefaultValue()) {
+        return false;
+    }
+
+    for (let i = 1; i < 3; i++) {
+        let cell = board[row][i];
+        let marker = cell.getValue();
+        if (marker !== firstCellMarker) {
+            return false;
+        }
+    }
+
+    return true;
+  }
+
+//   checking row wins
+  const rowWin = () => {
+    let rows = {
+        row1: false,
+        row2: false,
+        row3: false,
+    }
+    const currentBoard = gameBoard.getBoard();
+
+    for (let i = 0; i < 3; i++) {
+        rows[`row${i}`] = checkRow(i, currentBoard);
+    }
+
+    for (const key in rows) {
+        if (rows[key]) {
+            return true;
+        }
+    }
+
+    return false;
+  }
+
   const move = (row, column) => {
+
+    if (winnerFound) {
+        console.warn("Winner Found");
+        return;
+    }
+
     const currentPlayer = getActivePlayer();
 
     // check if making a move should be allowed;
     // such as when game is tied or winner has been;
-    const rowWin = gameBoard.rowWin();
-
-    if (rowWin) {
-        console.log("Winner found");
-        return;
-    }
 
     console.log(
       `Adding marker - ${currentPlayer.getMarker()} to Row - ${row} Column - ${column}`
@@ -247,6 +248,13 @@ function PlayerBotRound(
     if (!markerAdded) {
       console.warn("Failed to Add Marker");
       return;
+    }
+
+    winnerFound = rowWin();
+
+    if (winnerFound) {
+        console.info("Winner Found");
+        return;
     }
 
     console.log(
