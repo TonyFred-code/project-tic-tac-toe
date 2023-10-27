@@ -170,10 +170,6 @@ function PlayerBotRound(
   const switchActivePlayer = () => {
     activePlayer = activePlayer === players[0] ? players[1] : players[0];
     printPlayerTurn();
-    if (activePlayer.getName() === botName) {
-      console.log("Bot thinking");
-      setTimeout(botMove, 800); // delay to allow bot seem to be thinking;
-    }
   };
 
   // allows easier access to active player
@@ -184,6 +180,10 @@ function PlayerBotRound(
     const currentPlayer = getActivePlayer();
 
     console.log(`${currentPlayer.getName()}'s Turn...`);
+    if (activePlayer.getName() === botName) {
+      console.log(`${botName} is Thinking`);
+      setTimeout(botMove, 800); // delay to allow bot seem to be thinking;
+    }
   };
 
   //   variables to check against while making move (win or tie)
@@ -396,7 +396,7 @@ function PlayerBotRound(
     const row = choice[0];
     const column = choice[1];
 
-    console.log("Thinking done!");
+    console.log(`${botName} has finished thinking. Making a move now...`);
     move(row, column);
   };
 
