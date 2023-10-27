@@ -187,47 +187,85 @@ function PlayerBotRound(
     let firstCell = board[row][0];
     let firstCellMarker = firstCell.getValue();
     if (firstCellMarker === firstCell.getDefaultValue()) {
-        return false;
+      return false;
     }
 
     for (let i = 1; i < 3; i++) {
-        let cell = board[row][i];
-        let marker = cell.getValue();
-        if (marker !== firstCellMarker) {
-            return false;
-        }
+      let cell = board[row][i];
+      let marker = cell.getValue();
+      if (marker !== firstCellMarker) {
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+  //   checking row wins
+  const rowWin = () => {
+    let rows = {
+      row1: false,
+      row2: false,
+      row3: false,
+    };
+    const currentBoard = gameBoard.getBoard();
+
+    for (let i = 0; i < 3; i++) {
+      rows[`row${i}`] = checkRow(i, currentBoard);
+    }
+
+    for (const key in rows) {
+      if (rows[key]) {
+        return true;
+      }
+    }
+
+    return false;
+  };
+
+  const checkColumn = (column, board) => {
+    let firstCell = board[0][column];
+    let firstCellMarker = firstCell.getValue();
+    if (firstCellMarker === firstCell.getDefaultValue()) {
+      return false;
+    }
+
+    for (let i = 1; i < 3; i++) {
+      let cell = board[i][column];
+      let marker = cell.getValue();
+      if (marker !== firstCellMarker) {
+        return false;
+      }
     }
 
     return true;
   }
 
-//   checking row wins
-  const rowWin = () => {
-    let rows = {
-        row1: false,
-        row2: false,
-        row3: false,
-    }
-    const currentBoard = gameBoard.getBoard();
+  const columnWin = () => {
+    let columns = {
+        column1: false,
+        column2: false,
+        column3: false,
+      };
+      const currentBoard = gameBoard.getBoard();
 
-    for (let i = 0; i < 3; i++) {
-        rows[`row${i}`] = checkRow(i, currentBoard);
-    }
+      for (let i = 0; i < 3; i++) {
+        columns[`column${i}`] = checkColumn(i, currentBoard);
+      }
 
-    for (const key in rows) {
-        if (rows[key]) {
-            return true;
+      for (const key in columns) {
+        if (columns[key]) {
+          return true;
         }
-    }
+      }
 
-    return false;
+      return false;
   }
 
   const move = (row, column) => {
-
     if (winnerFound) {
-        console.warn("Winner Found");
-        return;
+      console.warn("Winner Found. Move Disallowed");
+      return;
     }
 
     const currentPlayer = getActivePlayer();
@@ -250,18 +288,19 @@ function PlayerBotRound(
       return;
     }
 
-    winnerFound = rowWin();
-
-    if (winnerFound) {
-        console.info("Winner Found");
-        return;
-    }
-
     console.log(
       `Added marker - ${currentPlayer.getMarker()} to Row - ${row} Column - ${column}`
     );
     console.log("Printing New Board");
     console.log(gameBoard.printBoard());
+
+    winnerFound = rowWin() || columnWin();
+
+    if (winnerFound) {
+      console.info("Winner Found");
+      return;
+    }
+
     switchActivePlayer();
   };
 
@@ -278,11 +317,18 @@ function PlayerBotRound(
   //   player moving method exposed to user;
   const playerMove = (row, column) => {
     const currentPlayer = getActivePlayer();
+    const playerName = currentPlayer.getName();
+    const playerMarker = currentPlayer.getMarker();
 
-    if (currentPlayer.getName() === botName) {
+    if (playerName === botName) {
       console.log("Bot move expected... Hold on...");
       return;
     }
+
+
+    console.log(
+        `${playerName} wants to add his marker - ${playerMarker} to Row - ${row} Column ${column}`
+      );
 
     move(row, column);
   };
