@@ -83,15 +83,18 @@ function GameBoard() {
       return false;
     }
 
+    let rowStructure = [[row, 0]];
+
     for (let i = 1; i < 3; i++) {
       let cell = board[row][i];
       let marker = cell.getValue();
       if (marker !== firstCellMarker) {
         return false;
       }
+      rowStructure.push([row, i]);
     }
 
-    return true;
+    return rowStructure;
   };
 
   //   checking row logic - checks three rows at a time
@@ -108,7 +111,7 @@ function GameBoard() {
 
     for (const key in rows) {
       if (rows[key]) {
-        return true;
+        return rows[key];
       }
     }
 
@@ -216,6 +219,7 @@ function GameBoard() {
     columnWin,
     diagonalWin,
     drawGame,
+    checkRow,
   };
 }
 
