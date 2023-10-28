@@ -169,15 +169,18 @@ function GameBoard() {
       return false;
     }
 
+    let diagonalStructure = [[0, columnIndexArr[0]]];
+
     for (let i = 1; i < 3; i++) {
       let cell = board[i][columnIndexArr[i]];
       let marker = cell.getValue();
       if (marker !== firstCellMarker) {
         return false;
       }
+      diagonalStructure.push([i, columnIndexArr[i]]);
     }
 
-    return true;
+    return diagonalStructure;
   };
 
   //   checking the two diagonals - leftToRight and rightToLeft
@@ -192,7 +195,7 @@ function GameBoard() {
 
     for (const key in diagonal) {
       if (diagonal[key]) {
-        return true;
+        return diagonal[key];
       }
     }
 
@@ -340,6 +343,7 @@ function GameRound() {
     winnerMarker: "",
     gameTied: false,
     gameWon: false,
+    winCells: null,
   };
 
   const getRoundState = () => roundState;
@@ -405,6 +409,7 @@ function GameRound() {
       console.info(
         `${roundState.winnerName}  Wins this round. Marker ${playerMarker} takes it.`
       );
+      console.log(roundState.gameWon);
       return;
     }
 
