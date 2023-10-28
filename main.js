@@ -813,6 +813,10 @@ function PlayerBotModeGameController() {
     ".announcements .player-player-mode"
   );
 
+  const modeSelectionBtn = gameArea.querySelector("button.mode-selection");
+
+  const restartRoundBtn = gameArea.querySelector("button.restart-game");
+
   const playerDetails = gameArea.querySelector(
     ".player-bot-mode .player-details"
   );
@@ -837,6 +841,8 @@ function PlayerBotModeGameController() {
   const modeSelectionBar = gameArea.querySelector(".modes-container");
 
   modeSelectionBar.addEventListener("click", openModal);
+
+  restartRoundBtn.addEventListener("click", restartRound);
 
   playerBotDialog.addEventListener("close", (e) => {
     console.log("closed");
@@ -1018,6 +1024,14 @@ function PlayerBotModeGameController() {
       }
     }
   };
+
+ function restartRound() {
+    gameRound = GameRound();
+    addPlayers();
+    gameWon = false;
+    gameDraw = false;
+    renderBoard();
+  }
 
   const botMove = () => {
     const board = gameRound.getBoard();
