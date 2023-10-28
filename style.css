@@ -261,7 +261,7 @@ dialog form {
 }
 
 .start-game,
-.restart-game {
+.restart-game, .mode-selection-btn {
   outline: none;
   border: 2px solid #53c722;
   background-color: #53c722;
@@ -270,6 +270,8 @@ dialog form {
   font-weight: bold;
   border-radius: 6px;
 }
+
+/* pick color for mode-selection btn */
 
 .restart-game {
   background-color: red;

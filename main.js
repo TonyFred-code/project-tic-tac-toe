@@ -496,7 +496,7 @@ function PlayerBotRound(
     checkNextMove();
   };
 
-  //   bot move method not exposed to user;
+  //   bot move method not exposed to user for console.;
   const botMove = () => {
     const board = gameRound.getBoard();
     const bot = gameRound.getActivePlayer();
@@ -528,6 +528,8 @@ function PlayerBotRound(
     getRoundState: gameRound.getRoundState,
     playerMove,
     getBoard: gameRound.getBoard,
+    getActivePlayer: gameRound.getActivePlayer,
+    checkNextMove,
   };
 }
 
@@ -780,19 +782,40 @@ function GameController(
 }
 
 function PlayerBotModeGameController() {
-  let gameRound = null;
+  let gameRound = GameRound();
+  let botName = "";
+  let botMarker = "";
+  let playerName = "";
+  let playerMarker = "";
 
   const gameArea = document.querySelector(".game-area");
 
-  const gameBoardPlayerDetailsDiv = gameArea.querySelector(".board-announcements-container")
-  const playerDetailsDiv = gameArea.querySelector(".announcements .player-bot-mode");
-  const modeSelectionSection = gameArea.querySelector(".mode-selection-container");
+  const gameBoardPlayerDetailsDiv = gameArea.querySelector(
+    ".board-announcements-container"
+  );
+  const playerBotDetailsDiv = gameArea.querySelector(
+    ".announcements .player-bot-mode"
+  );
+  const playerPlayerDetailsDiv = gameArea.querySelector(".announcements .player-player-mode");
+
+  const playerDetails = gameArea.querySelector(".player-bot-mode .player-details");
+  const playerNameBar = playerDetails.querySelector(".player-name");
+  const playerMarkerBar = playerDetails.querySelector(".player-marker");
+
+  const botDetails = gameArea.querySelector(".player-bot-mode .bot-details");
+  const botNameBar = botDetails.querySelector(".bot-name");
+  const botMarkerBar = botDetails.querySelector(".bot-marker");
+
+  const modeSelectionSection = gameArea.querySelector(
+    ".mode-selection-container"
+  );
   const playerBotDialog = document.querySelector("dialog#player-bot");
   const playerBotForm = playerBotDialog.querySelector("form");
   const playerBotDialogCancelBtn =
-  playerBotDialog.querySelector(".cancel-dialog");
+    playerBotDialog.querySelector(".cancel-dialog");
   const playerBotDialogSubmitBtn =
     playerBotDialog.querySelector(".submit-dialog");
+  const gameBoardDiv = gameArea.querySelector(".game-board");
 
   const modeSelectionBar = gameArea.querySelector(".modes-container");
 
@@ -800,11 +823,10 @@ function PlayerBotModeGameController() {
 
   playerBotDialog.addEventListener("close", (e) => {
     console.log("closed");
-  })
+  });
 
   playerBotDialogSubmitBtn.addEventListener("click", validateDialog);
   playerBotForm.addEventListener("submit", validateDialog);
-
 
   playerBotDialogCancelBtn.addEventListener("click", closeModal);
 
@@ -829,32 +851,128 @@ function PlayerBotModeGameController() {
 
     console.log("validating medium");
     const form = playerBotDialog.querySelector("form");
-    const playerName = form["player-name"].value;
-    const playerMarker = form["player-marker"].value;
-    const botDifficulty = form["bot-difficulty"].value;
+    const playerNameVal = form["player-name"].value;
+    const playerMarkerVal = form["player-marker"].value;
+    const botDifficultyVal = form["bot-difficulty"].value;
     form["player-name"].value = "";
 
-    if (playerName.trim() === "") {
+    if (playerNameVal.trim() === "") {
       console.warn("enter a name of at least one valid character length");
       form["player-name"].focus();
       return;
     }
 
-    if (!playerMarker) {
+    if (!playerMarkerVal) {
       console.warn("select one marker");
       return;
     }
 
-    if (!botDifficulty) {
+    if (!botDifficultyVal) {
       console.warn("select a difficulty choice");
       return;
     }
 
+    playerName = playerNameVal;
+    playerMarker = playerMarkerVal;
+    botMarker = `${playerMarker === "X" ? "O" : "X"}`;
+    botName = `${botDifficultyVal === "easy" ? "Jarvis" : "Friday"}`;
+
+    addPlayers();
+    updateDetailsBar();
+    renderBoard();
+    checkNextMove();
     hideElement(modeSelectionSection);
     showElement(gameBoardPlayerDetailsDiv);
-    showElement(playerDetailsDiv);
+    showElement(playerBotDetailsDiv);
     playerBotDialog.close();
   }
+
+  const addPlayers = () => {
+    gameRound.addHumanPlayer(playerName, playerMarker);
+    gameRound.addBotPlayer(botName, botMarker);
+  }
+
+  const updateDetailsBar = () => {
+    playerNameBar.textContent = playerName;
+    playerMarkerBar.textContent = playerMarker;
+    botNameBar.textContent = botName;
+    botMarkerBar.textContent = botMarker;
+  }
+
+  const checkNextMove = () => {
+    const activePlayer = gameRound.getActivePlayer();
+    playerDetails.classList.remove("active-player");
+    botDetails.classList.remove("active-player");
+
+
+    if (activePlayer.getName() === botName) {
+      botDetails.classList.add("active-player");
+      botMove();
+    } else {
+      playerDetails.classList.add("active-player");
+    }
+  };
+
+  const makeMove = (row, column) => {
+    gameRound.move(row, column);
+    renderBoard();
+
+    const roundState = gameRound.getRoundState();
+
+    if (roundState.gameTied || roundState.gameWon) return;
+
+    checkNextMove();
+  };
+
+  const renderBoard = () => {
+    gameBoardDiv.textContent = "";
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < 3; j++) {
+        const gameBoard = gameRound.getBoard();
+        const cellVal = gameBoard[i][j].getValue();
+        const defaultValue = gameBoard[i][j].getDefaultValue();
+        const button = document.createElement("button");
+        button.classList.add("cell");
+        button.dataset.row = i;
+        button.dataset.column = j;
+        button.dataset.marker = cellVal;
+
+        button.innerHTML = `${cellVal === defaultValue ? "&nbsp;" : cellVal}`;
+        gameBoardDiv.appendChild(button);
+      }
+    }
+  };
+
+  const botMove = () => {
+    const board = gameRound.getBoard();
+    const choice = gameRound.getActivePlayer().getChoice(board);
+    const row = choice[0];
+    const column = choice[1];
+
+
+    setTimeout(() => {
+      makeMove(row, column)
+    }, 1000);
+  };
+
+  function addMarker(e) {
+    const activePlayer = gameRound.getActivePlayer();
+
+    if (activePlayer.getName() === botName) {
+      return;
+    }
+
+    const row = e.target.dataset.row;
+    const column = e.target.dataset.column;
+
+    if (!row || !column) {
+      return;
+    }
+
+    makeMove(row, column);
+  }
+
+  gameBoardDiv.addEventListener("click", addMarker);
 
   function showElement(elm) {
     if (!elm) return;
