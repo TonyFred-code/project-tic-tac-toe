@@ -289,6 +289,11 @@ function GameRound() {
   const players = [];
 
   const addHumanPlayer = (name, marker) => {
+
+    if (!name || !marker) {
+      return;
+    }
+
     if (playersComplete()) {
       console.warn(`Refused to add ${name}. Players complete.`);
     }
@@ -299,6 +304,11 @@ function GameRound() {
   };
 
   const addBotPlayer = (name, marker) => {
+
+    if (!name || !marker) {
+      return;
+    }
+
     if (playersComplete()) {
       console.warn(`Refused to add ${name}. Players complete`);
     }
@@ -813,8 +823,7 @@ function PlayerBotModeGameController() {
     ".announcements .player-player-mode"
   );
 
-  const modeSelectionBtn = gameArea.querySelector("button.mode-selection");
-
+  const modeSelectionBtn = gameArea.querySelector("button.mode-selection-btn");
   const restartRoundBtn = gameArea.querySelector("button.restart-game");
 
   const playerDetails = gameArea.querySelector(
@@ -844,7 +853,13 @@ function PlayerBotModeGameController() {
 
   restartRoundBtn.addEventListener("click", restartRound);
 
+  modeSelectionBtn.addEventListener("click", openModeSelection);
+
   playerBotDialog.addEventListener("close", (e) => {
+    const form = playerBotDialog.querySelector("form");
+
+    form["player-name"].value = "";
+
     console.log("closed");
   });
 
@@ -877,7 +892,6 @@ function PlayerBotModeGameController() {
     const playerNameVal = form["player-name"].value;
     const playerMarkerVal = form["player-marker"].value;
     const botDifficultyVal = form["bot-difficulty"].value;
-    form["player-name"].value = "";
 
     if (playerNameVal.trim() === "") {
       console.warn("enter a name of at least one valid character length");
@@ -901,19 +915,32 @@ function PlayerBotModeGameController() {
     botMarker = `${playerMarker === "X" ? "O" : "X"}`;
     botName = `${botDifficultyVal === "easy" ? "Jarvis" : "Friday"}`;
 
-    addPlayers();
+    gameRound = GameRound();
+    addPlayers(playerNameVal, playerMarkerVal, botName, botMarker);
     updateDetailsBar();
     renderBoard();
     checkNextMove();
     hideElement(modeSelectionSection);
+    hideElement(playerPlayerDetailsDiv);
     showElement(gameBoardPlayerDetailsDiv);
     showElement(playerBotDetailsDiv);
     playerBotDialog.close();
   }
 
-  const addPlayers = () => {
+  const addPlayers = (
+    playerName,
+    playerMarker,
+    botName,
+    botMarker,
+  ) => {
     gameRound.addHumanPlayer(playerName, playerMarker);
     gameRound.addBotPlayer(botName, botMarker);
+    console.log({
+      playerName,
+      playerMarker,
+      botName,
+      botMarker
+    })
   };
 
   const updateDetailsBar = () => {
@@ -927,7 +954,12 @@ function PlayerBotModeGameController() {
     const activePlayer = gameRound.getActivePlayer();
 
     if (activePlayer.getName() === botName) {
-      botMove();
+      botDetails.classList.add("active-player");
+      setTimeout(() => {
+        botMove();
+      }, 1200);
+    } else {
+      playerDetails.classList.add("active-player");
     }
   };
 
@@ -935,7 +967,6 @@ function PlayerBotModeGameController() {
   let gameDraw = false;
 
   const makeMove = (row, column) => {
-
     if (gameWon) {
       return;
     }
@@ -943,7 +974,6 @@ function PlayerBotModeGameController() {
     if (gameDraw) {
       return;
     }
-
 
     gameRound.move(row, column);
     renderBoard();
@@ -979,9 +1009,9 @@ function PlayerBotModeGameController() {
     gameBoardDiv.classList.add("game-drawn");
     gameDraw = true;
     gameWon = false;
-        // display draw msg
+    // display draw msg
 
-        console.log(`NOBODY WINS`);
+    console.log(`NOBODY WINS`);
   };
 
   const renderGameWin = () => {
@@ -997,14 +1027,14 @@ function PlayerBotModeGameController() {
       let cell = winArr[i];
       let row = cell[0];
       let col = cell[1];
-      let selector = `[data-row='${row}'][data-column='${col}']`
+      let selector = `[data-row='${row}'][data-column='${col}']`;
 
       let button = gameBoardDiv.querySelector(`${selector}`);
       setTimeout(() => {
         button.classList.add("win-cell");
-      }, (i * 110) + 500);
+      }, i * 110 + 500);
     }
-  }
+  };
 
   const renderBoard = () => {
     gameBoardDiv.textContent = "";
@@ -1025,31 +1055,49 @@ function PlayerBotModeGameController() {
     }
   };
 
- function restartRound() {
+  function restartRound() {
     gameRound = GameRound();
-    addPlayers();
+    addPlayers(
+      playerName,
+      playerMarker,
+      botName,
+      botMarker
+    );
+    setTimeout(() => {
+      checkNextMove();
+    }, 800)
     gameWon = false;
     gameDraw = false;
     renderBoard();
   }
 
+  function openModeSelection() {
+    showElement(modeSelectionSection);
+    hideElement(gameBoardPlayerDetailsDiv);
+    hideElement(playerBotDetailsDiv);
+    restartRound();
+  }
+
   const botMove = () => {
     const board = gameRound.getBoard();
-    const choice = gameRound.getActivePlayer().getChoice(board);
+    const player = gameRound.getActivePlayer();
+    console.log(player.getName());
+    const choice = player.getChoice(board);
+    console.log(choice);
     const row = choice[0];
     const column = choice[1];
 
-    setTimeout(() => {
+    // setTimeout(() => {
       makeMove(row, column);
       botDetails.classList.remove("active-player");
-    }, 1000);
+    // }, 1000);
   };
 
   function addMarker(e) {
     const activePlayer = gameRound.getActivePlayer();
 
     if (activePlayer.getName() === botName) {
-      console.warn("Move disallowed")
+      console.warn("Move disallowed");
       return;
     }
 
