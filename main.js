@@ -940,14 +940,14 @@ function PlayerBotModeGameController() {
     const roundState = gameRound.getRoundState();
 
     if (roundState.gameTied) {
-      // display draw msg
-
-      console.log(`NOBODY WINS`);
+      renderGameDraw();
       return;
     }
 
     if (roundState.gameWon) {
       // display win msg
+
+      renderGameWn();
 
       console.log(`${roundState.winnerName} has won this round.`);
       return;
@@ -956,7 +956,30 @@ function PlayerBotModeGameController() {
     checkNextMove();
   };
 
-  const renderGameDraw = () => {};
+  const renderGameDraw = () => {
+    gameBoardDiv.classList.add("game-drawn");
+        // display draw msg
+
+        console.log(`NOBODY WINS`);
+  };
+
+  const renderGameWn = () => {
+    gameBoardDiv.classList.add("game-won");
+
+    const roundState = gameRound.getRoundState();
+
+    const winArr = roundState.gameWon;
+
+    for (let i = 0; i < 3; i++) {
+      let cell = winArr[i];
+      let row = cell[0];
+      let col = cell[1];
+      let selector = `[data-row='${row}'][data-column='${col}']`
+
+      let button = gameBoardDiv.querySelector(`${selector}`);
+      button.classList.add("win-cell");
+    }
+  }
 
   const renderBoard = () => {
     gameBoardDiv.textContent = "";
