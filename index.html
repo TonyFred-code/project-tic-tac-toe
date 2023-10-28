@@ -30,8 +30,14 @@
             </button>
           </div>
         </div>
-        <div class="board-announcements-container hidden" data-mode="player-player">
-          <div class="announcements player-details-score-container">
+        <div class="board-announcements-container hidden" data-mode="none">
+
+          <!-- Player - Bot Mode Board -->
+          <div class="player-bot-mode-board-container"></div>
+          <!-- Player - Player Mode Board -->
+          <div class="player-player-mode-board-container hidden"></div>
+
+          <div class="announcements player-details-score-container hidden">
             <!-- look during player-bot mode -->
             <div class="player-bot-mode hidden">
               <div class="player-details">
@@ -51,10 +57,11 @@
                 <div class="player-one-name">Player One</div>
                 <div class="player-one-marker">X</div>
               </div>
-              <div class="players-score-displaye">
-                <span class="player-one-score">0</span>
+              <div class="vs-text">
+                <!-- <span class="player-one-score">0</span>
                 :
-                <span class="player-two-score">0</span>
+                <span class="player-two-score">0</span> -->
+                VS
               </div>
               <div class="player-two-details">
                 <div class="player-two-name">Player Two</div>
@@ -62,8 +69,8 @@
               </div>
             </div>
           </div>
-          <div class="game-board" data-state="disabled"></div>
-          <div class="game-functions">
+          <div class="game-board hidden" data-state="disabled " data-mode="player-player"></div>
+          <div class="game-functions hidden">
             <button class="start-game hidden">START</button>
             <button class="mode-selection-btn">MODE SELECTION</button>
             <button class="restart-game">RESTART</button>
@@ -94,8 +101,8 @@
             />
           </div>
           <div class="row btn-container">
-            <button class="cancel-dialog">Cancel</button>
-            <button class="submit-dialog">Submit</button>
+            <button class="cancel-dialog" type="button">Cancel</button>
+            <button class="submit-dialog" type="submit">Submit</button>
           </div>
         </form>
       </dialog>

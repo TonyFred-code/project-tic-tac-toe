@@ -181,7 +181,7 @@ dialog form {
   width: 100%;
 }
 
-.player-bot-mode {
+.player-bot-mode, .player-player-mode {
   display: flex;
   width: 80%;
   margin: 0 auto;
@@ -191,7 +191,7 @@ dialog form {
   padding: 12px;
 }
 
-.player-details {
+.player-details, .player-one-details, .player-two-details {
   display: flex;
   flex-flow: column;
   align-items: center;
