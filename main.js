@@ -977,7 +977,9 @@ function PlayerBotModeGameController() {
       let selector = `[data-row='${row}'][data-column='${col}']`
 
       let button = gameBoardDiv.querySelector(`${selector}`);
-      button.classList.add("win-cell");
+      setTimeout(() => {
+        button.classList.add("win-cell");
+      }, (i * 110) + 500);
     }
   }
 

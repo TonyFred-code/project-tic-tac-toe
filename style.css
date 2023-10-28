@@ -242,6 +242,11 @@ dialog form {
   user-select: none;
 }
 
+.win-cell {
+  background-color: green;
+  color: white;
+}
+
 .cell[data-marker="X"] {
 }
 
