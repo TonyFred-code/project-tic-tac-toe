@@ -787,6 +787,7 @@ function PlayerBotModeGameController() {
   let botMarker = "";
   let playerName = "";
   let playerMarker = "";
+  let botDifficulty = "";
 
   const gameArea = document.querySelector(".game-area");
 
@@ -796,9 +797,13 @@ function PlayerBotModeGameController() {
   const playerBotDetailsDiv = gameArea.querySelector(
     ".announcements .player-bot-mode"
   );
-  const playerPlayerDetailsDiv = gameArea.querySelector(".announcements .player-player-mode");
+  const playerPlayerDetailsDiv = gameArea.querySelector(
+    ".announcements .player-player-mode"
+  );
 
-  const playerDetails = gameArea.querySelector(".player-bot-mode .player-details");
+  const playerDetails = gameArea.querySelector(
+    ".player-bot-mode .player-details"
+  );
   const playerNameBar = playerDetails.querySelector(".player-name");
   const playerMarkerBar = playerDetails.querySelector(".player-marker");
 
@@ -858,6 +863,7 @@ function PlayerBotModeGameController() {
 
     if (playerNameVal.trim() === "") {
       console.warn("enter a name of at least one valid character length");
+      // todo: display UI error for when invalid
       form["player-name"].focus();
       return;
     }
@@ -890,26 +896,20 @@ function PlayerBotModeGameController() {
   const addPlayers = () => {
     gameRound.addHumanPlayer(playerName, playerMarker);
     gameRound.addBotPlayer(botName, botMarker);
-  }
+  };
 
   const updateDetailsBar = () => {
     playerNameBar.textContent = playerName;
     playerMarkerBar.textContent = playerMarker;
     botNameBar.textContent = botName;
     botMarkerBar.textContent = botMarker;
-  }
+  };
 
   const checkNextMove = () => {
     const activePlayer = gameRound.getActivePlayer();
-    playerDetails.classList.remove("active-player");
-    botDetails.classList.remove("active-player");
-
 
     if (activePlayer.getName() === botName) {
-      botDetails.classList.add("active-player");
       botMove();
-    } else {
-      playerDetails.classList.add("active-player");
     }
   };
 
@@ -917,12 +917,34 @@ function PlayerBotModeGameController() {
     gameRound.move(row, column);
     renderBoard();
 
+    const activePlayer = gameRound.getActivePlayer();
+
+    if (activePlayer.getName() === botName) {
+      botDetails.classList.add("active-player");
+    } else {
+      playerDetails.classList.add("active-player");
+    }
+
     const roundState = gameRound.getRoundState();
 
-    if (roundState.gameTied || roundState.gameWon) return;
+    if (roundState.gameTied) {
+      // display draw msg
+
+      console.log(`NOBODY WINS`);
+      return;
+    }
+
+    if (roundState.gameWon) {
+      // display win msg
+
+      console.log(`${roundState.winnerName} has won this round.`);
+      return;
+    }
 
     checkNextMove();
   };
+
+  const renderGameDraw = () => {};
 
   const renderBoard = () => {
     gameBoardDiv.textContent = "";
@@ -949,9 +971,9 @@ function PlayerBotModeGameController() {
     const row = choice[0];
     const column = choice[1];
 
-
     setTimeout(() => {
-      makeMove(row, column)
+      makeMove(row, column);
+      botDetails.classList.remove("active-player");
     }, 1000);
   };
 
@@ -959,6 +981,7 @@ function PlayerBotModeGameController() {
     const activePlayer = gameRound.getActivePlayer();
 
     if (activePlayer.getName() === botName) {
+      console.warn("Move disallowed")
       return;
     }
 
@@ -970,6 +993,7 @@ function PlayerBotModeGameController() {
     }
 
     makeMove(row, column);
+    playerDetails.classList.remove("active-player");
   }
 
   gameBoardDiv.addEventListener("click", addMarker);
