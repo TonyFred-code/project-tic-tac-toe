@@ -126,15 +126,18 @@ function GameBoard() {
       return false;
     }
 
+    let columnStructure = [[0, column]];
+
     for (let i = 1; i < 3; i++) {
       let cell = board[i][column];
       let marker = cell.getValue();
       if (marker !== firstCellMarker) {
         return false;
       }
+      columnStructure.push([i, column]);
     }
 
-    return true;
+    return columnStructure;
   };
 
   //   column win checking logic - checks three columns at a time;
@@ -151,7 +154,7 @@ function GameBoard() {
 
     for (const key in columns) {
       if (columns[key]) {
-        return true;
+        return columns[key];
       }
     }
 
