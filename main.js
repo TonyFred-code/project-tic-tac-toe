@@ -925,7 +925,20 @@ function PlayerBotModeGameController() {
     }
   };
 
+  let gameWon = false;
+  let gameDraw = false;
+
   const makeMove = (row, column) => {
+
+    if (gameWon) {
+      return;
+    }
+
+    if (gameDraw) {
+      return;
+    }
+
+
     gameRound.move(row, column);
     renderBoard();
 
@@ -947,7 +960,7 @@ function PlayerBotModeGameController() {
     if (roundState.gameWon) {
       // display win msg
 
-      renderGameWn();
+      renderGameWin();
 
       console.log(`${roundState.winnerName} has won this round.`);
       return;
@@ -958,13 +971,17 @@ function PlayerBotModeGameController() {
 
   const renderGameDraw = () => {
     gameBoardDiv.classList.add("game-drawn");
+    gameDraw = true;
+    gameWon = false;
         // display draw msg
 
         console.log(`NOBODY WINS`);
   };
 
-  const renderGameWn = () => {
+  const renderGameWin = () => {
     gameBoardDiv.classList.add("game-won");
+    gameWon = true;
+    gameDraw = false;
 
     const roundState = gameRound.getRoundState();
 
