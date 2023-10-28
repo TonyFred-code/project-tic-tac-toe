@@ -1,13 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tic Tac Toe - Two Screen</title>
-    <link rel="stylesheet" href="game.css">
+    <link rel="stylesheet" href="game.css" />
     <script src="game.js" defer></script>
-</head>
-<body>
+  </head>
+  <body>
+    <div class="container">
+      <header class="game-title">
+        <h1>TIC TAC TOE - TWO SCREEN</h1>
+      </header>
 
-</body>
+      <div class="game-container">
+        <!-- Mode Selection -->
+        <div class="mode-selection-container">
+            <h3>Choose Playing Mode</h3>
+            <div class="modes-container">
+              <button class="ai-vs-player-mode" data-mode="player-bot">
+                Player vs Computer
+              </button>
+              <button
+                type="button"
+                class="player-vs-player-mode"
+                data-mode="player-player"
+              >
+                Player vs Player
+              </button>
+            </div>
+          </div>
+      </div>
+
+      <footer>
+        Copyright &copy; 2023 Tony Fred
+        <span class="icon-container github-icon">
+          <a href="https://github.com/tonyfred-code/project-tic-tac-toe">
+            <img src="./icons/github.svg" alt="Github" />
+          </a>
+        </span>
+      </footer>
+    </div>
+  </body>
 </html>
