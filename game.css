@@ -26,6 +26,8 @@ body {
   gap: 6px;
 }
 
+/* header styling */
+
 header {
   display: flex;
   text-align: center;
@@ -39,12 +41,37 @@ header h1 {
   font-size: 3rem;
 }
 
+/* game container styling */
 
+.game-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    gap: 12px;
+}
 
+/* mode selection styling */
+.mode-selection-container {
+  width: 350px;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: space-around;
+  align-items: center;
+  gap: 8px;
+}
 
+.mode-selection-container > div {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  gap: 20px;
+  padding: 12px;
+}
 
-
-
+.mode-selection-container button {
+  width: 150px;
+  padding: 12px;
+}
 
 .icon-container {
   width: 30px;
