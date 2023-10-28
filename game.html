@@ -10,26 +10,33 @@
   <body>
     <div class="container">
       <header class="game-title">
-        <h1>TIC TAC TOE - TWO SCREEN</h1>
+        <h1>TIC TAC TOE</h1>
       </header>
 
       <div class="game-container">
         <!-- Mode Selection -->
         <div class="mode-selection-container">
-            <h3>Choose Playing Mode</h3>
-            <div class="modes-container">
-              <button class="ai-vs-player-mode" data-mode="player-bot">
-                Player vs Computer
-              </button>
-              <button
-                type="button"
-                class="player-vs-player-mode"
-                data-mode="player-player"
-              >
-                Player vs Player
-              </button>
-            </div>
+          <h3>Choose Playing Mode</h3>
+          <div class="modes-container">
+            <button
+              class="ai-vs-player-mode"
+              type="button"
+              data-mode-choice="player-bot"
+            >
+              Player vs Computer
+            </button>
+            <button
+              type="button"
+              class="player-vs-player-mode"
+              data-mode-choice="player-player"
+            >
+              Player vs Player
+            </button>
           </div>
+        </div>
+
+        <!-- Container for Boards -->
+        <div class="boards-container hidden" data-mode="none"></div>
       </div>
 
       <footer>
