@@ -3,10 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tic Tac Toe</title>
-
-    <link rel="stylesheet" href="style.css" />
-    <script src="./main.js" defer></script>
+    <title>Tic Tac Toe - Two Screen</title>
+    <link rel="stylesheet" href="game.css" />
+    <script src="game.js" defer></script>
   </head>
   <body>
     <div class="container">
@@ -14,100 +13,86 @@
         <h1>TIC TAC TOE</h1>
       </header>
 
-      <div class="game-area">
+      <div class="game-container">
+        <!-- Mode Selection -->
         <div class="mode-selection-container">
           <h3>Choose Playing Mode</h3>
           <div class="modes-container">
-            <button class="ai-vs-player-mode" data-mode="player-bot">
+            <button
+              class="bot-vs-player-mode"
+              type="button"
+              data-mode-choice="player-bot"
+            >
               Player vs Computer
             </button>
             <button
               type="button"
               class="player-vs-player-mode"
-              data-mode="player-player"
+              data-mode-choice="player-player"
             >
               Player vs Player
             </button>
           </div>
         </div>
-        <div class="board-announcements-container hidden" data-mode="none">
 
-          <!-- Player - Bot Mode Board -->
-          <div class="player-bot-mode-board-container hidden"></div>
-          <!-- Player - Player Mode Board -->
-          <div class="player-player-mode-board-container hidden"></div>
-
-          <div class="announcements player-details-score-container">
-            <!-- look during player-bot mode -->
-            <div class="player-bot-mode hidden">
-              <div class="player-details">
-                <div class="player-name">Player</div>
-                <div class="player-marker">X</div>
-              </div>
-              <div class="vs-text">VS</div>
-              <div class="bot-details">
-                <div class="bot-name">AI</div>
-                <div class="bot-marker">O</div>
+        <!-- Container for Boards -->
+        <div class="boards-container" data-mode="none">
+          <!-- Player vs Bot Board -->
+          <div class="player-bot-board-container">
+            <!-- PLAYER VS BOT BOARD CONTAINER -->
+            <div class="details-bar">
+                <div class="game-win-bar hidden">PLAYER TWO WINS 🎊️😊️🎊️</div>
+                <div class="game-draw-bar hidden">IT'S A DRAW 🤝️🤝️🤝️</div>
+              <div class="player-bot-details">
+                <div class="player-details">
+                  <div class="player-name">Player</div>
+                  <div class="player-marker">X</div>
+                </div>
+                <div class="vs-text">VS</div>
+                <div class="bot-details">
+                  <div class="bot-name">AI</div>
+                  <div class="bot-marker">O</div>
+                </div>
               </div>
             </div>
-
-            <!-- look during player-player mode -->
-            <div class="player-player-mode">
-              <div class="player-one-details">
-                <div class="player-one-name">Player One</div>
-                <div class="player-one-marker">X</div>
-              </div>
-              <div class="vs-text">
-                <!-- <span class="player-one-score">0</span>
-                :
-                <span class="player-two-score">0</span> -->
-                VS
-              </div>
-              <div class="player-two-details">
-                <div class="player-two-name">Player Two</div>
-                <div class="player-two-marker">O</div>
-              </div>
+            <div class="game-board"></div>
+            <div class="game-functions">
+              <button type="button" class="mode-selection-btn">
+                MODE SELECTION
+              </button>
+              <button type="button" class="restart-game">RESTART</button>
             </div>
           </div>
-          <div class="game-board " data-state="disabled " data-mode="player-bot"></div>
-          <div class="game-functions ">
-            <button class="start-game hidden">START</button>
-            <button class="mode-selection-btn">MODE SELECTION</button>
-            <button class="restart-game">RESTART</button>
+          <!-- Player vs Player Board -->
+          <div class="player-player-board-container">
+            <!-- PLAYER VS PLAYER BOARD CONTAINER -->
+            <div class="details-bar">
+                <div class="game-win-bar hidden">PLAYER TWO WINS 🎊️😊️🎊️</div>
+                <div class="game-draw-bar hidden">IT'S A DRAW 🤝️🤝️🤝️</div>
+              <div class="player-player-details">
+                <div class="player-one-details">
+                  <div class="player-one-name">Player 1</div>
+                  <div class="player-one-marker">X</div>
+                </div>
+                <div class="vs-text">VS</div>
+                <div class="player-two-details">
+                  <div class="player-two-name">Player 2</div>
+                  <div class="player-two-marker">O</div>
+                </div>
+              </div>
+            </div>
+            <div class="game-board"></div>
+            <div class="game-functions">
+              <button type="button" class="mode-selection-btn">
+                MODE SELECTION
+              </button>
+              <button type="button" class="restart-game">RESTART</button>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Player vs Player Dialog -->
-      <dialog id="player-player" class="player-player">
-        <form method="dialog">
-          <div class="row">
-            <label for="player-one">Player One</label>
-            <input
-              type="text"
-              name="player-one"
-              placeholder="Enter name for Marker 'X'"
-              id="player-one"
-            />
-          </div>
-
-          <div class="row">
-            <label for="player-two">Player Two</label>
-            <input
-              type="text"
-              name="player-two"
-              placeholder="Enter name for Marker 'O'"
-              id="player-two"
-            />
-          </div>
-          <div class="row btn-container">
-            <button class="cancel-dialog" type="button">Cancel</button>
-            <button class="submit-dialog" type="submit">Submit</button>
-          </div>
-        </form>
-      </dialog>
-
-      <!-- Player vs Bot Dialog -->
+      <!-- Player Bot Dialog -->
       <dialog id="player-bot" class="player-bot">
         <form method="dialog">
           <div class="row">
@@ -118,10 +103,12 @@
               name="player-name"
               placeholder="Enter Player Name"
               id="player-name"
+              value="Player 1"
             />
+            <p class="err-msg hidden player-name-err"> * Please input a name for your Player * </p>
           </div>
 
-          <div class="row marker-choices">
+          <!-- <div class="row marker-choices">
             <h4>Choose Marker</h4>
             <label for="player-marker-x">
               <input
@@ -145,7 +132,7 @@
               />
               O
             </label>
-          </div>
+          </div> -->
 
           <div class="row bot-difficulty-choices">
             <h4>Choose Bot Difficulty</h4>
@@ -161,7 +148,7 @@
               Easy</label
             >
 
-            <label for="hard-bot">
+            <!-- <label for="hard-bot">
               <input
                 required
                 type="radio"
@@ -170,13 +157,46 @@
                 value="hard"
               />
               Hard
-            </label>
+            </label> -->
           </div>
           <div class="row btn-container">
             <button class="cancel-dialog" type="button">Cancel</button>
             <button class="submit-dialog" type="submit" formmethod="dialog">
               Submit
             </button>
+          </div>
+        </form>
+      </dialog>
+
+      <!-- Player Player Dialog -->
+      <dialog id="player-player" class="player-player">
+        <form method="dialog">
+          <div class="row">
+            <label for="player-one">Player One</label>
+            <input
+              type="text"
+              name="player-one"
+              placeholder="Enter name"
+              id="player-one"
+              value="Player 1"
+            />
+            <p class="err-msg hidden player-one-err-msg"> * Please input a name for Player One * </p>
+          </div>
+
+          <div class="row">
+            <label for="player-two">Player Two</label>
+            <input
+              type="text"
+              name="player-two"
+              placeholder="Enter name"
+              id="player-two"
+              value="Player 2"
+            />
+            <p class="err-msg hidden player-two-err-msg"> * Please input a name for Player Two * </p>
+          </div>
+          <div class="row btn-container">
+            <button class="cancel-dialog" type="button">Cancel</button>
+            <button class="submit-dialog" type="submit">Submit</button>
           </div>
         </form>
       </dialog>
