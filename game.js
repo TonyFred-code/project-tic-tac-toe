@@ -230,6 +230,60 @@ function GameBoard() {
   };
 }
 
+// creating players for playing game
+function Player(name, marker) {
+  const getName = () => name;
+
+  const getMarker = () => marker;
+
+  return {
+    getMarker,
+    getName,
+  };
+}
+
+// creating human player
+function HumanPlayer(name, marker) {
+  const player = Player(name, marker);
+
+  return Object.assign({}, player);
+}
+
+// allows add one choice making logic for bot move making
+function Computer(name, marker) {
+  const player = Player(name, marker);
+
+  const getRndInt = (min, max) => {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1) + min);
+  };
+
+  const getValidMoves = (board) => {
+    const validMoves = [];
+
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < 3; j++) {
+        if (board[i][j].getValue() !== "-") continue;
+        validMoves.push([i, j]);
+      }
+    }
+
+    return validMoves;
+  };
+
+  const getChoice = (board) => {
+    if (!board) return;
+
+    const validMoves = getValidMoves(board);
+    const index = getRndInt(0, validMoves.length - 1);
+    const move = validMoves[index];
+    return move;
+  };
+
+  return Object.assign({}, player, { getChoice });
+}
+
 // Player Bot Screen Controller
 function PlayerBotScreenController() {
   const boardsContainer = document.querySelector(".boards-container");
