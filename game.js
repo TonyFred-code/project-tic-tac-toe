@@ -541,6 +541,12 @@ function PlayerBotScreenController() {
   const boardsContainer = document.querySelector(".boards-container");
   const boardContainer = document.querySelector(".player-bot-board-container");
   const gameBoardDiv = boardContainer.querySelector(".game-board");
+  const botDetails = boardContainer.querySelector(".bot-details");
+  const playerDetails = boardContainer.querySelector(".player-details");
+  const playerNameBar = boardContainer.querySelector(".player-name");
+  const playerMarkerBar = boardContainer.querySelector(".player-marker");
+  const botNameBar = boardContainer.querySelector(".bot-name");
+  const botMarkerBar = boardContainer.querySelector(".bot-marker")
   const modeSelectionContainer = document.querySelector(
     ".mode-selection-container"
   );
@@ -584,15 +590,17 @@ function PlayerBotScreenController() {
     gameRound.addBotPlayer(botName, botMarker);
   };
 
-  function getRndInt(min, max) {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min + 1) + min);
-  }
+    const updateDetailsBar = () => {
+    playerNameBar.textContent = playerName;
+    playerMarkerBar.textContent = playerMarker;
+    botNameBar.textContent = botName;
+    botMarkerBar.textContent = botMarker;
+  };
 
   const assignMarkers = () => {
-    let num = getRndInt(0, 20);
-    if (num % 2 === 0) {
+    let milliseconds = Date.now();
+
+    if (milliseconds % 2 === 0) {
       playerMarker = "X";
       botMarker = "O";
     } else {
@@ -662,6 +670,7 @@ function PlayerBotScreenController() {
     assignMarkers(); // assigns random marker
     botName = `${botDifficultyVal === "easy" ? "Jarvis" : "Friday"}`;
     addPlayers(playerName, playerMarker, botName, botMarker);
+    updateDetailsBar();
 
     console.log({
       playerName,
@@ -677,6 +686,98 @@ function PlayerBotScreenController() {
     dialog.close();
   }
 
+    const checkNextMove = () => {
+    const activePlayer = gameRound.getActivePlayer();
+
+    if (activePlayer.getName() === botName) {
+      botDetails.classList.add("active-player");
+      setTimeout(() => {
+        botMove();
+      }, 1200);
+    } else {
+      playerDetails.classList.add("active-player");
+    }
+  };
+
+    let gameWon = false;
+  let gameDraw = false;
+
+
+  const makeMove = (row, column) => {
+    if (gameWon) {
+      return;
+    }
+
+    if (gameDraw) {
+      return;
+    }
+
+    gameRound.move(row, column);
+    renderBoard();
+
+    const activePlayer = gameRound.getActivePlayer();
+
+    if (activePlayer.getName() === botName) {
+      botDetails.classList.add("active-player");
+    } else {
+      playerDetails.classList.add("active-player");
+    }
+
+    const roundState = gameRound.getRoundState();
+
+    if (roundState.gameTied) {
+    //   renderGameDraw();
+    console.log("Game Tied")
+      return;
+    }
+
+    if (roundState.gameWon) {
+      // display win msg
+
+    //   renderGameWin();
+
+      console.log(`${roundState.winnerName} has won this round.`);
+      return;
+    }
+
+    checkNextMove();
+  };
+
+
+    const botMove = () => {
+    const board = gameRound.getBoard();
+    const player = gameRound.getActivePlayer();
+    console.log(player.getName());
+    const choice = player.getChoice(board);
+    console.log(choice);
+    const row = choice[0];
+    const column = choice[1];
+
+    // setTimeout(() => {
+    makeMove(row, column);
+    botDetails.classList.remove("active-player");
+    // }, 1000);
+  };
+
+    function addMarker(e) {
+    const activePlayer = gameRound.getActivePlayer();
+
+    if (activePlayer.getName() === botName) {
+      console.warn("Move disallowed");
+      return;
+    }
+
+    const row = e.target.dataset.row;
+    const column = e.target.dataset.column;
+
+    if (!row || !column) {
+      return;
+    }
+
+    makeMove(row, column);
+    playerDetails.classList.remove("active-player");
+  }
+
   function hideElement(elm) {
     if (!elm) return;
 
@@ -687,6 +788,7 @@ function PlayerBotScreenController() {
   cancelDialogBtn.addEventListener("click", closeDialog);
   submitDialogBtn.addEventListener("click", validateDialog);
   form.addEventListener("submit", validateDialog);
+  gameBoardDiv.addEventListener("click", addMarker);
 }
 
 PlayerBotScreenController();
@@ -728,15 +830,10 @@ function PlayerPlayerScreenController() {
     }
   };
 
-  function getRndInt(min, max) {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min + 1) + min);
-  }
-
   const assignMarkers = () => {
-    let num = getRndInt(0, 20);
-    if (num % 2 === 0) {
+    let milliseconds = Date.now();
+
+    if (milliseconds % 2 === 0) {
       playerOneMarker = "X";
       playerTwoMarker = "O";
     } else {
@@ -744,6 +841,7 @@ function PlayerPlayerScreenController() {
       playerTwoMarker = "X";
     }
   };
+
 
   // dialog showing and mode selection logic
   const showDialog = () => {
