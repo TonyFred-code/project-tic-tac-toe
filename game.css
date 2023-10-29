@@ -44,10 +44,10 @@ header h1 {
 /* game container styling */
 
 .game-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
 }
 
 /* mode selection styling */
@@ -60,7 +60,7 @@ header h1 {
   gap: 8px;
 }
 
-.mode-selection-container > div {
+.modes-container {
   display: flex;
   justify-content: space-around;
   align-items: center;
@@ -71,29 +71,129 @@ header h1 {
 .mode-selection-container button {
   width: 150px;
   padding: 12px;
+  outline: none;
 }
 
 /* Boards Container */
 .boards-container[data-mode="none"] * {
-    display: none;
+  display: none;
 }
 
 .boards-container[data-mode="player-bot"] .player-player-board-container {
-    display: none;
+  display: none;
 }
 
 .boards-container[data-mode="player-player"] .player-bot-board-container {
-    display: none;
+  display: none;
 }
 
+/* styling for dialogs */
+dialog {
+  margin: auto;
+  outline: none;
+  border: none;
+  padding: 8px;
+  border-radius: 6px;
+}
 
+dialog.player-player {
+}
 
+dialog.player-bot {
+}
+
+dialog form {
+}
+
+.player-player form {
+  display: grid;
+  height: 200px;
+  grid-template-rows: 1fr 1fr 60px;
+  align-items: center;
+  gap: 12px;
+}
+
+.player-bot form {
+  display: grid;
+  grid-template-rows: repeat(3, 1fr) 60px;
+  align-items: center;
+  gap: 12px;
+}
+/* style player-bot form better */
+
+.player-player .row,
+.player-bot .row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.player-player label,
+.player-bot label {
+  padding-left: 6px;
+}
+
+.player-player input[type="text"],
+.player-bot input[type="text"] {
+  height: 30px;
+  padding-left: 5px;
+  border: 1px solid grey;
+  outline: none;
+}
+
+.player-player .btn-container,
+.player-bot .btn-container {
+  flex-direction: row;
+  justify-content: space-around;
+}
+
+.player-player .btn-container button,
+.player-bot .btn-container button {
+  outline: none;
+  border: none;
+  padding: 16px;
+  border-radius: 8px;
+  font-size: 0.89rem;
+}
+
+.player-player .btn-container .submit-dialog,
+.player-bot .btn-container .submit-dialog {
+  border: 2px solid green;
+  color: white;
+  background-color: green;
+}
+
+.player-player .btn-container .cancel-dialog,
+.player-bot .btn-container .cancel-dialog {
+  border: 2px solid red;
+  color: white;
+  background-color: red;
+}
+
+.player-player
+  .btn-container
+  .submit-dialog:active
+  .player-bot
+  .btn-container
+  .submit:active {
+  background-color: white;
+  color: green;
+}
+
+.player-player .btn-container .cancel-dialog:active,
+.player-bot .btn-container .cancel-dialog:active {
+  background-color: white;
+  color: red;
+}
+
+/* styling for icon container on page */
 .icon-container {
   width: 30px;
   height: 30px;
   display: inline-block;
 }
 
+/* styling for specific icon */
 .icon-container img {
   max-width: 100%;
   width: 100%;
