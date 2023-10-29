@@ -232,7 +232,9 @@ function GameBoard() {
 
 // creating players for playing game
 function Player(name, marker) {
-  const getName = () => name;
+  let playerName = name.trim();
+
+  const getName = () => playerName;
 
   const getMarker = () => marker;
 
@@ -830,7 +832,6 @@ function PlayerBotScreenController() {
     updateDetailsBar();
     gameWon = false;
     gameDraw = false;
-    renderBoard();
 
     let mode = getCurrentMode();
     if (mode !== "player-bot") {
@@ -840,6 +841,7 @@ function PlayerBotScreenController() {
     setTimeout(() => {
         checkNextMove();
       }, 800);
+    renderBoard();
   }
 
   function hideElement(elm) {
@@ -929,6 +931,8 @@ function PlayerPlayerScreenController() {
       console.log("mode not found");
       return;
     }
+
+    return mode;
   };
 
   const assignMarkers = () => {
@@ -1072,6 +1076,8 @@ function PlayerPlayerScreenController() {
 
   const checkNextMove = () => {
     const activePlayer = gameRound.getActivePlayer();
+    playerOneDetailsDiv.classList.remove("active-player");
+    playerTwoDetailsDiv.classList.remove("active-player");
 
     if (activePlayer.getName() === playerOneName) {
       playerOneDetailsDiv.classList.add("active-player");
@@ -1093,8 +1099,6 @@ function PlayerPlayerScreenController() {
     }
 
     // const activePlayer = gameRound.getActivePlayer();
-    playerOneDetailsDiv.classList.remove("active-player");
-    playerTwoDetailsDiv.classList.remove("active-player");
     gameRound.move(row, column);
     renderBoard();
 
@@ -1141,11 +1145,19 @@ function PlayerPlayerScreenController() {
     assignMarkers();
     addPlayers(playerOneName, playerOneMarker, playerTwoName, playerTwoMarker);
     updateDetailsBar();
-    setTimeout(() => {
-      checkNextMove();
-    }, 300);
+
     gameWon = false;
     gameDraw = false;
+
+    let mode = getCurrentMode();
+    if (mode !== "player-player") {
+        console.log("going back");
+        return;
+    }
+    setTimeout(() => {
+        checkNextMove();
+      }, 300);
+
     renderBoard();
   }
 
