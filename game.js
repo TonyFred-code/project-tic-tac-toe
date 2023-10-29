@@ -26,6 +26,210 @@ function Cell() {
   };
 }
 
+// BOARD CREATION LOGIC
+function GameBoard() {
+  const rows = 3;
+  const columns = 3;
+  const board = [];
+
+  // create a 2d array that will represent the state of the game board
+  // row-0 represents top row and
+  // col-0 represents left-most column
+  for (let i = 0; i < rows; i++) {
+    board[i] = [];
+    for (let j = 0; j < columns; j++) {
+      board[i].push(Cell());
+    }
+  }
+
+  //  method for getting board that game's UI needs
+  const getBoard = () => board;
+
+  //   logic for adding marker to the gameBoard
+  const addMarker = (row, column, playerMarker) => {
+    if (row >= 3 || column >= 3 || row < 0 || column < 0) {
+      return false;
+    }
+
+    // if there's a marker there already
+    // return false
+    if (board[row][column].getValue() !== "-") {
+      return false;
+    }
+
+    const cell = board[row][column];
+    cell.addToken(playerMarker);
+
+    return true;
+  };
+
+  //   print board for console mode
+  const printBoard = () => {
+    let output = "";
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < 3; j++) {
+        output += `${board[i][j].getValue()}`;
+      }
+      output += "\n";
+    }
+
+    return output;
+  };
+
+  //   helper function for checking a row
+  const checkRow = (row) => {
+    let firstCell = board[row][0];
+    let firstCellMarker = firstCell.getValue();
+    if (firstCellMarker === firstCell.getDefaultValue()) {
+      return false;
+    }
+
+    let rowStructure = [[row, 0]];
+
+    for (let i = 1; i < 3; i++) {
+      let cell = board[row][i];
+      let marker = cell.getValue();
+      if (marker !== firstCellMarker) {
+        return false;
+      }
+      rowStructure.push([row, i]);
+    }
+
+    return rowStructure;
+  };
+
+  //   checking row logic - checks three rows at a time
+  const rowWin = () => {
+    let rows = {
+      row0: false,
+      row1: false,
+      row2: false,
+    };
+
+    for (let i = 0; i < 3; i++) {
+      rows[`row${i}`] = checkRow(i);
+    }
+
+    // for (const key in rows) {
+    //   if (rows[key]) {
+    //     return rows[key];
+    //   }
+    // }
+
+    return rows;
+  };
+
+  //   helper function for checking a column
+  const checkColumn = (column) => {
+    let firstCell = board[0][column];
+    let firstCellMarker = firstCell.getValue();
+    if (firstCellMarker === firstCell.getDefaultValue()) {
+      return false;
+    }
+
+    let columnStructure = [[0, column]];
+
+    for (let i = 1; i < 3; i++) {
+      let cell = board[i][column];
+      let marker = cell.getValue();
+      if (marker !== firstCellMarker) {
+        return false;
+      }
+      columnStructure.push([i, column]);
+    }
+
+    return columnStructure;
+  };
+
+  //   column win checking logic - checks three columns at a time;
+  const columnWin = () => {
+    let columns = {
+      column0: false,
+      column1: false,
+      column2: false,
+    };
+
+    for (let i = 0; i < 3; i++) {
+      columns[`column${i}`] = checkColumn(i);
+    }
+
+    // for (const key in columns) {
+    //   if (columns[key]) {
+    //     return columns[key];
+    //   }
+    // }
+
+    return columns;
+  };
+
+  //   helper function for checking a diagonal win
+  const checkDiagonal = (columnIndexArr) => {
+    let firstCell = board[0][columnIndexArr[0]];
+    let firstCellMarker = firstCell.getValue();
+    if (firstCellMarker === firstCell.getDefaultValue()) {
+      return false;
+    }
+
+    let diagonalStructure = [[0, columnIndexArr[0]]];
+
+    for (let i = 1; i < 3; i++) {
+      let cell = board[i][columnIndexArr[i]];
+      let marker = cell.getValue();
+      if (marker !== firstCellMarker) {
+        return false;
+      }
+      diagonalStructure.push([i, columnIndexArr[i]]);
+    }
+
+    return diagonalStructure;
+  };
+
+  //   checking the two diagonals - leftToRight and rightToLeft
+  const diagonalWin = () => {
+    let diagonal = {
+      leftToRight: false,
+      RightToLeft: false,
+    };
+
+    diagonal.RightToLeft = checkDiagonal([2, 1, 0]);
+    diagonal.leftToRight = checkDiagonal([0, 1, 2]);
+
+    // for (const key in diagonal) {
+    //   if (diagonal[key]) {
+    //     return diagonal[key];
+    //   }
+    // }
+
+    return diagonal;
+  };
+
+  //   logic for checking if game is a draw;
+  const drawGame = () => {
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < 3; j++) {
+        let cell = board[i][j];
+        let marker = cell.getValue();
+        if (marker === cell.getDefaultValue()) {
+          return false;
+        }
+      }
+    }
+
+    return true;
+  };
+
+  return {
+    printBoard,
+    getBoard,
+    addMarker,
+    rowWin,
+    columnWin,
+    diagonalWin,
+    drawGame,
+    checkRow,
+  };
+}
+
 // Player Bot Screen Controller
 function PlayerBotScreenController() {
   const boardsContainer = document.querySelector(".boards-container");
