@@ -284,6 +284,8 @@ function Computer(name, marker) {
     return move;
   };
 
+  const getSmartChoice = () => {}
+
   return Object.assign({}, player, { getChoice });
 }
 
@@ -724,7 +726,7 @@ function PlayerBotScreenController() {
     playerName = playerNameVal;
     botDifficulty = botDifficultyVal;
     assignMarkers(); // assigns random marker
-    botName = `${botDifficultyVal === "easy" ? "Jarvis" : "Friday"}`;
+    botName = `${botDifficultyVal === "easy" ? "Friday" : "Jarvis"}`;
     gameRound.removePlayers();
     addPlayers(playerName, playerMarker, botName, botMarker);
     updateDetailsBar();
