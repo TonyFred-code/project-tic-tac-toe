@@ -295,7 +295,7 @@ function GameRound() {
       console.log("add players before removing them");
       return;
     }
-    players.splice(0, players.length - 1);
+    players.splice(0, players.length);
   };
 
   const addHumanPlayer = (name, marker) => {
@@ -655,6 +655,11 @@ function PlayerBotScreenController() {
   };
 
   const renderBoard = () => {
+    let mode = getCurrentMode();
+    if (mode !== "player-bot") {
+        return;
+    }
+
     gameBoardDiv.textContent = "";
     for (let i = 0; i < 3; i++) {
       for (let j = 0; j < 3; j++) {
@@ -740,6 +745,11 @@ function PlayerBotScreenController() {
   let gameDraw = false;
 
   const makeMove = (row, column) => {
+    let mode = getCurrentMode();
+    if (mode !== "player-bot") {
+        return;
+    }
+
     if (gameWon) {
       return;
     }
@@ -818,12 +828,18 @@ function PlayerBotScreenController() {
     assignMarkers();
     addPlayers(playerName, playerMarker, botName, botMarker);
     updateDetailsBar();
-    setTimeout(() => {
-      checkNextMove();
-    }, 800);
     gameWon = false;
     gameDraw = false;
     renderBoard();
+
+    let mode = getCurrentMode();
+    if (mode !== "player-bot") {
+        return;
+    }
+
+    setTimeout(() => {
+        checkNextMove();
+      }, 800);
   }
 
   function hideElement(elm) {
@@ -847,8 +863,8 @@ function PlayerBotScreenController() {
   modeSelectionBtn.addEventListener("click", () => {
     setNewMode("none");
     showElement(modeSelectionContainer);
-    gameRound = GameRound();
-    renderBoard();
+    restartRound();
+    gameRound.removePlayers();
   });
   dialog.addEventListener("close", (e) => {
     const form = dialog.querySelector("form");
@@ -897,7 +913,7 @@ function PlayerPlayerScreenController() {
   let playerTwoName = "";
   let playerTwoMarker = "";
 
-  const setCurrentMode = (newMode) => {
+  const setNewMode = (newMode) => {
     if (newMode !== "none" && newMode !== "player-player") {
       console.log("mode not accepted");
       return;
@@ -1031,7 +1047,7 @@ function PlayerPlayerScreenController() {
 
     checkNextMove();
 
-    setCurrentMode("player-player");
+    setNewMode("player-player");
     renderBoard();
     hideElement(modeSelectionContainer);
     dialog.close();
@@ -1106,6 +1122,7 @@ function PlayerPlayerScreenController() {
 
   function addMarker(e) {
     // const activePlayer = gameRound.getActivePlayer();
+    console.log("added");
 
     const row = e.target.dataset.row;
     const column = e.target.dataset.column;
@@ -1118,8 +1135,8 @@ function PlayerPlayerScreenController() {
     // playerDetails.classList.remove("active-player");
   }
 
-
   function restartRound() {
+    gameRound.removePlayers();
     gameRound = GameRound();
     assignMarkers();
     addPlayers(playerOneName, playerOneMarker, playerTwoName, playerTwoMarker);
@@ -1138,15 +1155,33 @@ function PlayerPlayerScreenController() {
     elm.classList.add("hidden");
   }
 
+  function showElement(elm) {
+    if (!elm) return;
+
+    elm.classList.remove("hidden");
+  }
+
   playerPlayerModeBtn.addEventListener("click", showDialog);
   cancelDialogBtn.addEventListener("click", closeDialog);
   submitDialogBtn.addEventListener("click", validateDialog);
   form.addEventListener("submit", validateDialog);
   gameBoardDiv.addEventListener("click", addMarker);
-  restartRoundBtn.addEventListener('click', restartRound);
+  restartRoundBtn.addEventListener("click", restartRound);
+  modeSelectionBtn.addEventListener("click", () => {
+    setNewMode("none");
+    showElement(modeSelectionContainer);
+    restartRound();
+    gameRound.removePlayers();
+  });
+
+  dialog.addEventListener("close", (e) => {
+    const form = dialog.querySelector("form");
+
+    form["player-one"].value = "";
+    form["player-two"].value = "";
+
+    console.log("closed");
+  });
 }
 
 PlayerPlayerScreenController();
-
-// Mode Switching Module
-function ModeSwitching() {}
