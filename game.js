@@ -558,6 +558,7 @@ function PlayerBotScreenController() {
   const playerBotModeBtn = document.querySelector("button.bot-vs-player-mode");
   const dialog = document.querySelector("dialog#player-bot");
   const form = dialog.querySelector("form");
+  const errMsgContainer = dialog.querySelector(".player-name-err");
   const submitDialogBtn = dialog.querySelector(".submit-dialog");
   const cancelDialogBtn = dialog.querySelector(".cancel-dialog");
 
@@ -659,7 +660,7 @@ function PlayerBotScreenController() {
   const renderBoard = () => {
     let mode = getCurrentMode();
     if (mode !== "player-bot") {
-        return;
+      return;
     }
 
     gameBoardDiv.textContent = "";
@@ -692,9 +693,12 @@ function PlayerBotScreenController() {
     if (playerNameVal.trim() === "") {
       console.warn("enter a name of at least one valid character length");
       // todo: display UI error for when invalid
+      showElement(errMsgContainer);
       form["player-name"].focus();
       return;
     }
+
+    hideElement(errMsgContainer);
 
     // if (!playerMarkerVal) {
     //   console.warn("select one marker");
@@ -749,7 +753,7 @@ function PlayerBotScreenController() {
   const makeMove = (row, column) => {
     let mode = getCurrentMode();
     if (mode !== "player-bot") {
-        return;
+      return;
     }
 
     if (gameWon) {
@@ -835,12 +839,12 @@ function PlayerBotScreenController() {
 
     let mode = getCurrentMode();
     if (mode !== "player-bot") {
-        return;
+      return;
     }
 
     setTimeout(() => {
-        checkNextMove();
-      }, 800);
+      checkNextMove();
+    }, 800);
     renderBoard();
   }
 
@@ -871,7 +875,7 @@ function PlayerBotScreenController() {
   dialog.addEventListener("close", (e) => {
     const form = dialog.querySelector("form");
 
-    form["player-name"].value = "";
+    form["player-name"].value = "Player 1";
 
     console.log("closed");
   });
@@ -904,6 +908,8 @@ function PlayerPlayerScreenController() {
     ".mode-selection-container"
   );
   const dialog = document.querySelector("dialog#player-player");
+  const playerOneErrMsgContainer = dialog.querySelector(".player-one-err-msg");
+  const playerTwoErrMsgContainer = dialog.querySelector(".player-two-err-msg");
   const form = dialog.querySelector("form");
   const submitDialogBtn = dialog.querySelector(".submit-dialog");
   const cancelDialogBtn = dialog.querySelector(".cancel-dialog");
@@ -1021,6 +1027,7 @@ function PlayerPlayerScreenController() {
         "enter a valid name for player one of at least one character long"
       );
 
+      showElement(playerOneErrMsgContainer);
       form["player-one"].focus();
       return;
     }
@@ -1030,9 +1037,13 @@ function PlayerPlayerScreenController() {
         "enter a valid name for player two of at least one character long"
       );
 
+      showElement(playerTwoErrMsgContainer);
       form["player-two"].focus();
       return;
     }
+
+    hideElement(playerOneErrMsgContainer);
+    hideElement(playerTwoErrMsgContainer);
 
     playerOneName = playerOneNameVal;
     playerTwoName = playerTwoNameVal;
@@ -1151,12 +1162,12 @@ function PlayerPlayerScreenController() {
 
     let mode = getCurrentMode();
     if (mode !== "player-player") {
-        console.log("going back");
-        return;
+      console.log("going back");
+      return;
     }
     setTimeout(() => {
-        checkNextMove();
-      }, 300);
+      checkNextMove();
+    }, 300);
 
     renderBoard();
   }
