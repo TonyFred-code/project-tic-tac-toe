@@ -552,6 +552,11 @@ function PlayerBotScreenController() {
   const botMarkerBar = boardContainer.querySelector(".bot-marker");
   const restartRoundBtn = boardContainer.querySelector(".restart-game");
   const modeSelectionBtn = boardContainer.querySelector(".mode-selection-btn");
+  const gameWinDiv = boardContainer.querySelector(".game-win-bar");
+  const gameDrawDiv = boardContainer.querySelector(".game-draw-bar");
+  const playerBotDetailsDiv = boardContainer.querySelector(
+    ".player-bot-details"
+  );
   const modeSelectionContainer = document.querySelector(
     ".mode-selection-container"
   );
@@ -631,7 +636,8 @@ function PlayerBotScreenController() {
     gameDraw = true;
     gameWon = false;
     // display draw msg
-
+    showElement(gameDrawDiv);
+    hideElement(playerBotDetailsDiv);
     console.log(`NOBODY WINS`);
   };
 
@@ -655,6 +661,10 @@ function PlayerBotScreenController() {
         button.classList.add("win-cell");
       }, i * 110 + 500);
     }
+
+    gameWinDiv.textContent = `${roundState.winnerName} wins 🎊️😁️🎊️`;
+    showElement(gameWinDiv);
+    hideElement(playerBotDetailsDiv);
   };
 
   const renderBoard = () => {
@@ -836,6 +846,9 @@ function PlayerBotScreenController() {
     updateDetailsBar();
     gameWon = false;
     gameDraw = false;
+    hideElement(gameWinDiv);
+    hideElement(gameDrawDiv);
+    showElement(playerBotDetailsDiv);
 
     let mode = getCurrentMode();
     if (mode !== "player-bot") {
@@ -913,6 +926,11 @@ function PlayerPlayerScreenController() {
   const form = dialog.querySelector("form");
   const submitDialogBtn = dialog.querySelector(".submit-dialog");
   const cancelDialogBtn = dialog.querySelector(".cancel-dialog");
+  const gameWinDiv = boardContainer.querySelector(".game-win-bar");
+  const gameDrawDiv = boardContainer.querySelector(".game-draw-bar");
+  const playersDetailsDiv = boardContainer.querySelector(
+    ".player-player-details"
+  );
 
   //   round playing logic
   let gameRound = GameRound();
@@ -969,7 +987,8 @@ function PlayerPlayerScreenController() {
     gameDraw = true;
     gameWon = false;
     // display draw msg
-
+    showElement(gameDrawDiv);
+    hideElement(playersDetailsDiv);
     console.log(`NOBODY WINS`);
   };
 
@@ -993,6 +1012,10 @@ function PlayerPlayerScreenController() {
         button.classList.add("win-cell");
       }, i * 110 + 500);
     }
+    // display win msg
+    gameWinDiv.textContent = `${roundState.winnerName} wins 🎊️😁️🎊️`;
+    showElement(gameWinDiv);
+    hideElement(playersDetailsDiv);
   };
 
   const renderBoard = () => {
@@ -1124,8 +1147,6 @@ function PlayerPlayerScreenController() {
     }
 
     if (roundState.gameWon) {
-      // display win msg
-
       renderGameWin();
 
       console.log(`${roundState.winnerName} has won this round.`);
@@ -1156,6 +1177,9 @@ function PlayerPlayerScreenController() {
     assignMarkers();
     addPlayers(playerOneName, playerOneMarker, playerTwoName, playerTwoMarker);
     updateDetailsBar();
+    hideElement(gameWinDiv);
+    hideElement(gameDrawDiv);
+    showElement(playersDetailsDiv);
 
     gameWon = false;
     gameDraw = false;
@@ -1200,8 +1224,8 @@ function PlayerPlayerScreenController() {
   dialog.addEventListener("close", (e) => {
     const form = dialog.querySelector("form");
 
-    form["player-one"].value = "";
-    form["player-two"].value = "";
+    form["player-one"].value = "Player 1";
+    form["player-two"].value = "Player 2";
 
     console.log("closed");
   });
