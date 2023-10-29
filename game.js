@@ -1082,7 +1082,6 @@ function PlayerPlayerScreenController() {
     gameRound.move(row, column);
     renderBoard();
 
-    checkNextMove();
     const roundState = gameRound.getRoundState();
 
     console.log(roundState);
@@ -1101,6 +1100,8 @@ function PlayerPlayerScreenController() {
       console.log(`${roundState.winnerName} has won this round.`);
       return;
     }
+
+    checkNextMove();
   };
 
   function addMarker(e) {
@@ -1117,6 +1118,20 @@ function PlayerPlayerScreenController() {
     // playerDetails.classList.remove("active-player");
   }
 
+
+  function restartRound() {
+    gameRound = GameRound();
+    assignMarkers();
+    addPlayers(playerOneName, playerOneMarker, playerTwoName, playerTwoMarker);
+    updateDetailsBar();
+    setTimeout(() => {
+      checkNextMove();
+    }, 300);
+    gameWon = false;
+    gameDraw = false;
+    renderBoard();
+  }
+
   function hideElement(elm) {
     if (!elm) return;
 
@@ -1128,6 +1143,7 @@ function PlayerPlayerScreenController() {
   submitDialogBtn.addEventListener("click", validateDialog);
   form.addEventListener("submit", validateDialog);
   gameBoardDiv.addEventListener("click", addMarker);
+  restartRoundBtn.addEventListener('click', restartRound);
 }
 
 PlayerPlayerScreenController();
