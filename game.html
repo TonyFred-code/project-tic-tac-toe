@@ -36,8 +36,120 @@
         </div>
 
         <!-- Container for Boards -->
-        <div class="boards-container hidden" data-mode="none"></div>
+        <div class="boards-container" data-mode="none">
+          <!-- Player vs Bot Board -->
+          <div class="player-bot-board-container">
+            PLAYER VS BOT BOARD CONTAINER
+          </div>
+          <!-- Player vs Player Board -->
+          <div class="player-player-board-container">
+            PLAYER VS PLAYER BOARD CONTAINER
+          </div>
+        </div>
       </div>
+
+      <!-- Player Bot Dialog -->
+      <dialog id="player-bot" class="player-bot">
+        <form method="dialog">
+          <div class="row">
+            <label for="player-name">Player</label>
+            <input
+              required
+              type="text"
+              name="player-name"
+              placeholder="Enter Player Name"
+              id="player-name"
+            />
+          </div>
+
+          <div class="row marker-choices">
+            <h4>Choose Marker</h4>
+            <label for="player-marker-x">
+              <input
+                required
+                type="radio"
+                name="player-marker"
+                id="player-marker-x"
+                value="X"
+                checked
+              />
+              X</label
+            >
+
+            <label for="player-marker-o">
+              <input
+                required
+                type="radio"
+                name="player-marker"
+                id="player-marker-o"
+                value="O"
+              />
+              O
+            </label>
+          </div>
+
+          <div class="row bot-difficulty-choices">
+            <h4>Choose Bot Difficulty</h4>
+            <label for="easy-bot">
+              <input
+                required
+                type="radio"
+                name="bot-difficulty"
+                id="easy-bot"
+                value="easy"
+                checked
+              />
+              Easy</label
+            >
+
+            <!-- <label for="hard-bot">
+              <input
+                required
+                type="radio"
+                name="bot-difficulty"
+                id="hard-bot"
+                value="hard"
+              />
+              Hard
+            </label> -->
+          </div>
+          <div class="row btn-container">
+            <button class="cancel-dialog" type="button">Cancel</button>
+            <button class="submit-dialog" type="submit" formmethod="dialog">
+              Submit
+            </button>
+          </div>
+        </form>
+      </dialog>
+
+      <!-- Player Player Dialog -->
+      <dialog id="player-player" class="player-player">
+        <form method="dialog">
+          <div class="row">
+            <label for="player-one">Player One</label>
+            <input
+              type="text"
+              name="player-one"
+              placeholder="Enter name for Marker 'X'"
+              id="player-one"
+            />
+          </div>
+
+          <div class="row">
+            <label for="player-two">Player Two</label>
+            <input
+              type="text"
+              name="player-two"
+              placeholder="Enter name for Marker 'O'"
+              id="player-two"
+            />
+          </div>
+          <div class="row btn-container">
+            <button class="cancel-dialog" type="button">Cancel</button>
+            <button class="submit-dialog" type="submit">Submit</button>
+          </div>
+        </form>
+      </dialog>
 
       <footer>
         Copyright &copy; 2023 Tony Fred

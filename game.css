@@ -45,7 +45,7 @@ header h1 {
 
 .game-container {
     display: flex;
-    justify-content: space-around;
+    justify-content: center;
     align-items: center;
     gap: 12px;
 }
@@ -72,6 +72,21 @@ header h1 {
   width: 150px;
   padding: 12px;
 }
+
+/* Boards Container */
+.boards-container[data-mode="none"] * {
+    display: none;
+}
+
+.boards-container[data-mode="player-bot"] .player-player-board-container {
+    display: none;
+}
+
+.boards-container[data-mode="player-player"] .player-bot-board-container {
+    display: none;
+}
+
+
 
 .icon-container {
   width: 30px;
