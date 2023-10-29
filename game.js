@@ -1,3 +1,31 @@
+/*
+ ** A Cell represents one "square" on the board and can have one of
+ ** "-": no mark placed,
+ ** "X": Player One's marker,
+ ** "O": Player Two's marker
+ */
+
+function Cell() {
+  let value = "-"; // dash chosen as default cell marker;
+  const defaultValue = value;
+
+  // Accept player's marker and change value in the cell;
+  const addToken = (marker) => {
+    value = marker;
+  };
+
+  // method for retrieving current value of cell through closure
+  const getValue = () => value;
+
+  const getDefaultValue = () => defaultValue;
+
+  return {
+    addToken,
+    getValue,
+    getDefaultValue,
+  };
+}
+
 // Player Bot Screen Controller
 function PlayerBotScreenController() {
   const boardsContainer = document.querySelector(".boards-container");
