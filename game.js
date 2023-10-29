@@ -186,13 +186,13 @@ function GameBoard() {
 
   //   checking the two diagonals - leftToRight and rightToLeft
   const diagonalWin = () => {
-    let diagonal = {
+    let diagonals = {
       leftToRight: false,
       RightToLeft: false,
     };
 
-    diagonal.RightToLeft = checkDiagonal([2, 1, 0]);
-    diagonal.leftToRight = checkDiagonal([0, 1, 2]);
+    diagonals.RightToLeft = checkDiagonal([2, 1, 0]);
+    diagonals.leftToRight = checkDiagonal([0, 1, 2]);
 
     // for (const key in diagonal) {
     //   if (diagonal[key]) {
@@ -200,7 +200,7 @@ function GameBoard() {
     //   }
     // }
 
-    return diagonal;
+    return diagonals;
   };
 
   //   logic for checking if game is a draw;
@@ -264,7 +264,8 @@ function Computer(name, marker) {
 
     for (let i = 0; i < 3; i++) {
       for (let j = 0; j < 3; j++) {
-        if (board[i][j].getValue() !== "-") continue;
+        const cell = board[i][j];
+        if (cell.getValue() !== cell.getDefaultValue()) continue;
         validMoves.push([i, j]);
       }
     }
@@ -282,6 +283,257 @@ function Computer(name, marker) {
   };
 
   return Object.assign({}, player, { getChoice });
+}
+
+function GameRound() {
+  const gameBoard = GameBoard();
+
+  const players = [];
+
+  const removePlayers = () => {
+    if (players.length === 0) {
+      console.log("add players before removing them");
+      return;
+    }
+    players.splice(0, players.length - 1);
+  };
+
+  const addHumanPlayer = (name, marker) => {
+    if (!name || !marker) {
+      return;
+    }
+
+    if (playersComplete()) {
+      console.warn(`Refused to add ${name}. Players complete.`);
+      return;
+    }
+
+    players.push(HumanPlayer(name, marker));
+    console.info(`Added ${name}. Assigned "${marker}" as marker.`);
+    assignActivePlayer();
+  };
+
+  const addBotPlayer = (name, marker) => {
+    if (!name || !marker) {
+      return;
+    }
+
+    if (playersComplete()) {
+      console.warn(`Refused to add ${name}. Players complete`);
+      return;
+    }
+
+    players.push(Computer(name, marker));
+    console.info(`Added ${name} as Bot. Assigned "${marker}" as marker.`);
+    assignActivePlayer();
+  };
+
+  const playersComplete = () => {
+    if (players.length === 2) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
+  // ensures player with marker = "X" plays first;
+  let activePlayer = null;
+
+  const assignActivePlayer = () => {
+    if (playersComplete()) {
+      activePlayer = players[0].getMarker() === "X" ? players[0] : players[1];
+    }
+  };
+
+  // switches active player
+  //   prints turn for new active player
+  const switchActivePlayer = () => {
+    activePlayer = activePlayer === players[0] ? players[1] : players[0];
+  };
+
+  // allows easier access to active player
+  const getActivePlayer = () => activePlayer;
+
+  //   variables to check against while making move (win or tie)
+  // let winnerFound = false;
+  // let gameDraw = false;
+
+  const roundState = {
+    winnerName: "",
+    winnerMarker: "",
+    gameTied: false,
+    gameWon: false,
+  };
+
+  const getRoundState = () => roundState;
+
+  const rowWin = () => {
+    let rows = gameBoard.rowWin();
+
+    for (const key in rows) {
+        if (rows[key]) {
+            return rows[key];
+        }
+    }
+    return false;
+  }
+
+  const columnWin = () => {
+    let columns = gameBoard.columnWin();
+
+    for (const key in columns) {
+        if (columns[key]) {
+            return columns[key];
+        }
+    }
+    return false;
+  }
+
+  const diagonalWin = () => {
+    let diagonals = gameBoard.diagonalWin();
+
+    for (const key in diagonals) {
+        if (diagonals[key]) {
+            return diagonals[key];
+        }
+    }
+
+    return false;
+  }
+
+  const checkWin = () => {
+    let diagonalWinArr = diagonalWin();
+    let columnWinArr = columnWin();
+    let rowWinArr = rowWin();
+    let win = false;
+
+    if (diagonalWinArr || columnWinArr || rowWinArr) {
+        win = true;
+    }
+
+    return win;
+  }
+
+  let winCells = null
+
+  const getWinCellsArr = () => {
+    let arr = [];
+    let diagonalWinArr = diagonalWin();
+    let columnWinArr = columnWin();
+    let rowWinArr = rowWin();
+
+    if (diagonalWinArr) {
+        arr.push(...diagonalWinArr);
+    }
+
+    if (columnWinArr) {
+        arr.push(...columnWinArr);
+    }
+
+    if (rowWinArr) {
+        arr.push(...rowWinArr);
+    }
+
+    return arr;
+  }
+
+  const setWinCells = () => {
+    let arr = getWinCellsArr();
+
+    winCells = arr;
+  }
+
+  const getWinCells = () => {
+    return winCells;
+  }
+
+  //   making move logic
+  //   disallows moving if a winner has been found or game is drawn
+  //   makes move
+  // checks for win or tie after making move
+  //   switch active player to next player
+
+  const move = (row, column) => {
+    if (roundState.gameWon) {
+      console.warn("Winner Found. Move Disallowed");
+      return;
+    }
+
+    if (roundState.gameTied) {
+      console.warn("Game Drawn.");
+      return;
+    }
+
+    const currentPlayer = getActivePlayer();
+
+    if (currentPlayer === null) {
+      console.warn("Add two human players or one bot one human to play round");
+      return;
+    }
+
+    const playerName = currentPlayer.getName();
+    const playerMarker = currentPlayer.getMarker();
+
+    console.log(
+      `${playerName} wants to add his marker - ${playerMarker} to Row - ${row} Column ${column}`
+    );
+
+    // check if making a move should be allowed;
+    // such as when game is tied or winner has been;
+
+    console.log(
+      `Adding marker - ${playerMarker} to Row - ${row} Column - ${column}`
+    );
+
+    const markerAdded = gameBoard.addMarker(row, column, playerMarker);
+
+    if (!markerAdded) {
+      console.warn("Failed to Add Marker");
+      return;
+    }
+
+    console.log(
+      `Added marker - ${playerMarker} to Row - ${row} Column - ${column}`
+    );
+    console.log("Printing New Board");
+    console.log(gameBoard.printBoard());
+
+    roundState.gameWon = checkWin();
+    roundState.gameTied = gameBoard.drawGame();
+
+    if (roundState.gameWon) {
+      roundState.winnerName = playerName;
+      roundState.winnerMarker = playerMarker;
+      setWinCells();
+      console.info(
+        `${roundState.winnerName}  Wins this round. Marker ${playerMarker} takes it.`
+      );
+      console.log(roundState.gameWon);
+      return;
+    }
+
+    if (roundState.gameTied) {
+      console.info("NOBODY WINS.");
+      return;
+    }
+
+    switchActivePlayer();
+  };
+
+  return {
+    move,
+    getActivePlayer,
+    removePlayers,
+    addBotPlayer,
+    addHumanPlayer,
+    getBoard: gameBoard.getBoard,
+    printBoard: gameBoard.printBoard,
+    getRoundState,
+    getWinCells,
+    // columnWin,
+    // rowWin,
+    // diagonalWin,
+  };
 }
 
 // Player Bot Screen Controller
@@ -324,6 +576,23 @@ function PlayerBotScreenController() {
     return mode;
   };
 
+  function getRndInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1) + min);
+  }
+
+  const assignMarkers = () => {
+    let num = getRndInt(0, 20);
+    if (num % 2 === 0) {
+        playerMarker = "X";
+        botMarker = "O";
+    } else {
+        playerMarker = "O";
+        botMarker = "X";
+    }
+  }
+
   // dialog showing and mode selection logic
   const showDialog = () => {
     dialog.showModal();
@@ -332,7 +601,7 @@ function PlayerBotScreenController() {
   function closeDialog(e) {
     e.preventDefault();
 
-    dialog.closest();
+    dialog.close();
   }
 
   function validateDialog(e) {
@@ -341,7 +610,7 @@ function PlayerBotScreenController() {
     console.log("validating player bot form");
     const form = dialog.querySelector("form");
     const playerNameVal = form["player-name"].value;
-    const playerMarkerVal = form["player-marker"].value;
+    // const playerMarkerVal = form["player-marker"].value;
     const botDifficultyVal = form["bot-difficulty"].value;
 
     if (playerNameVal.trim() === "") {
@@ -351,10 +620,10 @@ function PlayerBotScreenController() {
       return;
     }
 
-    if (!playerMarkerVal) {
-      console.warn("select one marker");
-      return;
-    }
+    // if (!playerMarkerVal) {
+    //   console.warn("select one marker");
+    //   return;
+    // }
 
     if (!botDifficultyVal) {
       console.warn("select a difficulty choice");
@@ -362,8 +631,8 @@ function PlayerBotScreenController() {
     }
 
     playerName = playerNameVal;
-    playerMarker = playerMarkerVal;
-    botMarker = `${playerMarker === "X" ? "O" : "X"}`;
+    botDifficulty = botDifficultyVal;
+    assignMarkers(); // assigns random marker
     botName = `${botDifficultyVal === "easy" ? "Jarvis" : "Friday"}`;
 
     console.log({
@@ -430,6 +699,23 @@ function PlayerPlayerScreenController() {
     }
   };
 
+  function getRndInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1) + min);
+  }
+
+  const assignMarkers = () => {
+    let num = getRndInt(0, 20);
+    if (num % 2 === 0) {
+        playerOneMarker = "X";
+        playerTwoMarker = "O";
+    } else {
+        playerOneMarker = "O";
+        playerTwoMarker = "X";
+    }
+  }
+
   // dialog showing and mode selection logic
   const showDialog = () => {
     dialog.showModal();
@@ -438,7 +724,7 @@ function PlayerPlayerScreenController() {
   function closeDialog(e) {
     e.preventDefault();
 
-    dialog.closest();
+    dialog.close();
   }
 
   function validateDialog(e) {
@@ -469,8 +755,9 @@ function PlayerPlayerScreenController() {
 
     playerOneName = playerOneNameVal;
     playerTwoName = playerTwoNameVal;
-    playerOneMarker = "X";
-    playerTwoMarker = "O";
+    // playerOneMarker = "X";
+    // playerTwoMarker = "O";
+    assignMarkers();
 
     console.log({
       playerOneName,
