@@ -75,6 +75,119 @@ header h1 {
 }
 
 /* Boards Container */
+.boards-container {
+  /* display: grid;
+  grid-template-rows: 60px 1fr 60px;
+  gap: 6px; */
+}
+
+/* details bar */
+.details-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff;
+  border-radius: 6px;
+  width: 100%;
+}
+
+.player-bot-details,
+.player-player-details {
+  display: flex;
+  width: 80%;
+  margin: 0 auto;
+  align-items: center;
+  justify-content: space-around;
+  gap: 12px;
+  padding: 12px;
+}
+
+.player-details,
+.bot-details,
+.player-one-details,
+.player-two-details {
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.active-player {
+  font-size: 1.17rem;
+}
+
+.player-bot-board-container,
+.player-player-board-container {
+  display: grid;
+  grid-template-rows: 60px 1fr 60px;
+  gap: 6px;
+}
+
+.game-board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  height: 320px;
+  width: 320px;
+  margin: 6px;
+  gap: 5px;
+  background-color: black;
+}
+
+.cell {
+  outline: none;
+  border: none;
+  font-size: 5.5rem;
+  user-select: none;
+}
+
+.win-cell {
+  background-color: green;
+  color: white;
+}
+
+.cell[data-marker="X"] {
+}
+
+.cell[data-marker="O"] {
+}
+
+.cell[data-marker="-"] {
+}
+
+.game-functions {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  background-color: #ffffff;
+  border-radius: 6px;
+  padding: 8px 0;
+}
+
+.start-game,
+.restart-game,
+.mode-selection-btn {
+  outline: none;
+  border: 2px solid #53c722;
+  background-color: #53c722;
+  padding: 10px 32px;
+  color: white;
+  font-weight: bold;
+  border-radius: 6px;
+}
+
+/* pick color for mode-selection btn */
+
+.restart-game {
+  background-color: red;
+  border-color: red;
+}
+
+.restart-game:active {
+  color: red;
+  background-color: #ffffff;
+}
+
 .boards-container[data-mode="none"] * {
   display: none;
 }
@@ -82,7 +195,6 @@ header h1 {
 .boards-container[data-mode="player-bot"] .player-player-board-container {
   display: none;
 }
-
 
 .boards-container[data-mode="player-player"] .player-bot-board-container {
   display: none;

@@ -33,11 +33,11 @@
         <div class="board-announcements-container hidden" data-mode="none">
 
           <!-- Player - Bot Mode Board -->
-          <div class="player-bot-mode-board-container"></div>
+          <div class="player-bot-mode-board-container hidden"></div>
           <!-- Player - Player Mode Board -->
           <div class="player-player-mode-board-container hidden"></div>
 
-          <div class="announcements player-details-score-container hidden">
+          <div class="announcements player-details-score-container">
             <!-- look during player-bot mode -->
             <div class="player-bot-mode hidden">
               <div class="player-details">
@@ -52,7 +52,7 @@
             </div>
 
             <!-- look during player-player mode -->
-            <div class="player-player-mode hidden">
+            <div class="player-player-mode">
               <div class="player-one-details">
                 <div class="player-one-name">Player One</div>
                 <div class="player-one-marker">X</div>
@@ -69,8 +69,8 @@
               </div>
             </div>
           </div>
-          <div class="game-board hidden" data-state="disabled " data-mode="player-player"></div>
-          <div class="game-functions hidden">
+          <div class="game-board " data-state="disabled " data-mode="player-player"></div>
+          <div class="game-functions ">
             <button class="start-game hidden">START</button>
             <button class="mode-selection-btn">MODE SELECTION</button>
             <button class="restart-game">RESTART</button>

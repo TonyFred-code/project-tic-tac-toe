@@ -208,9 +208,8 @@ function PlayerPlayerScreenController() {
   cancelDialogBtn.addEventListener("click", closeDialog);
   submitDialogBtn.addEventListener("click", validateDialog);
   form.addEventListener("submit", validateDialog);
-
-  console.log(playerPlayerModeBtn);
 }
+
 PlayerPlayerScreenController();
 
 // Mode Switching Module
