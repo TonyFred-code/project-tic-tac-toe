@@ -620,6 +620,37 @@ function PlayerBotScreenController() {
     dialog.close();
   }
 
+    const renderGameDraw = () => {
+    gameBoardDiv.classList.add("game-drawn");
+    gameDraw = true;
+    gameWon = false;
+    // display draw msg
+
+    console.log(`NOBODY WINS`);
+  };
+
+  const renderGameWin = () => {
+    gameBoardDiv.classList.add("game-won");
+    gameWon = true;
+    gameDraw = false;
+
+    const roundState = gameRound.getRoundState();
+
+    const winArr = gameRound.getWinCells();
+    let length = winArr.length;
+    for (let i = 0; i < length; i++) {
+      let cell = winArr[i];
+      let row = cell[0];
+      let col = cell[1];
+      let selector = `[data-row='${row}'][data-column='${col}']`;
+
+      let button = gameBoardDiv.querySelector(`${selector}`);
+      setTimeout(() => {
+        button.classList.add("win-cell");
+      }, i * 110 + 500);
+    }
+  };
+
   const renderBoard = () => {
     gameBoardDiv.textContent = "";
         for (let i = 0; i < 3; i++) {
@@ -671,6 +702,7 @@ function PlayerBotScreenController() {
     botName = `${botDifficultyVal === "easy" ? "Jarvis" : "Friday"}`;
     addPlayers(playerName, playerMarker, botName, botMarker);
     updateDetailsBar();
+    checkNextMove();
 
     console.log({
       playerName,
@@ -726,7 +758,7 @@ function PlayerBotScreenController() {
     const roundState = gameRound.getRoundState();
 
     if (roundState.gameTied) {
-    //   renderGameDraw();
+      renderGameDraw();
     console.log("Game Tied")
       return;
     }
@@ -734,7 +766,7 @@ function PlayerBotScreenController() {
     if (roundState.gameWon) {
       // display win msg
 
-    //   renderGameWin();
+      renderGameWin();
 
       console.log(`${roundState.winnerName} has won this round.`);
       return;
