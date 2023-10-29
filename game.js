@@ -371,35 +371,35 @@ function GameRound() {
     let rows = gameBoard.rowWin();
 
     for (const key in rows) {
-        if (rows[key]) {
-            return rows[key];
-        }
+      if (rows[key]) {
+        return rows[key];
+      }
     }
     return false;
-  }
+  };
 
   const columnWin = () => {
     let columns = gameBoard.columnWin();
 
     for (const key in columns) {
-        if (columns[key]) {
-            return columns[key];
-        }
+      if (columns[key]) {
+        return columns[key];
+      }
     }
     return false;
-  }
+  };
 
   const diagonalWin = () => {
     let diagonals = gameBoard.diagonalWin();
 
     for (const key in diagonals) {
-        if (diagonals[key]) {
-            return diagonals[key];
-        }
+      if (diagonals[key]) {
+        return diagonals[key];
+      }
     }
 
     return false;
-  }
+  };
 
   const checkWin = () => {
     let diagonalWinArr = diagonalWin();
@@ -408,13 +408,13 @@ function GameRound() {
     let win = false;
 
     if (diagonalWinArr || columnWinArr || rowWinArr) {
-        win = true;
+      win = true;
     }
 
     return win;
-  }
+  };
 
-  let winCells = null
+  let winCells = null;
 
   const getWinCellsArr = () => {
     let arr = [];
@@ -423,29 +423,29 @@ function GameRound() {
     let rowWinArr = rowWin();
 
     if (diagonalWinArr) {
-        arr.push(...diagonalWinArr);
+      arr.push(...diagonalWinArr);
     }
 
     if (columnWinArr) {
-        arr.push(...columnWinArr);
+      arr.push(...columnWinArr);
     }
 
     if (rowWinArr) {
-        arr.push(...rowWinArr);
+      arr.push(...rowWinArr);
     }
 
     return arr;
-  }
+  };
 
   const setWinCells = () => {
     let arr = getWinCellsArr();
 
     winCells = arr;
-  }
+  };
 
   const getWinCells = () => {
     return winCells;
-  }
+  };
 
   //   making move logic
   //   disallows moving if a winner has been found or game is drawn
@@ -539,6 +539,8 @@ function GameRound() {
 // Player Bot Screen Controller
 function PlayerBotScreenController() {
   const boardsContainer = document.querySelector(".boards-container");
+  const boardContainer = document.querySelector(".player-bot-board-container");
+  const gameBoardDiv = boardContainer.querySelector(".game-board");
   const modeSelectionContainer = document.querySelector(
     ".mode-selection-container"
   );
@@ -549,6 +551,7 @@ function PlayerBotScreenController() {
   const cancelDialogBtn = dialog.querySelector(".cancel-dialog");
 
   //   Round Playing Logic
+  let gameRound = GameRound();
   let botName = "";
   let botMarker = "";
   let playerName = "";
@@ -576,6 +579,11 @@ function PlayerBotScreenController() {
     return mode;
   };
 
+  const addPlayers = (playerName, playerMarker, botName, botMarker) => {
+    gameRound.addHumanPlayer(playerName, playerMarker);
+    gameRound.addBotPlayer(botName, botMarker);
+  };
+
   function getRndInt(min, max) {
     min = Math.ceil(min);
     max = Math.floor(max);
@@ -585,13 +593,13 @@ function PlayerBotScreenController() {
   const assignMarkers = () => {
     let num = getRndInt(0, 20);
     if (num % 2 === 0) {
-        playerMarker = "X";
-        botMarker = "O";
+      playerMarker = "X";
+      botMarker = "O";
     } else {
-        playerMarker = "O";
-        botMarker = "X";
+      playerMarker = "O";
+      botMarker = "X";
     }
-  }
+  };
 
   // dialog showing and mode selection logic
   const showDialog = () => {
@@ -602,6 +610,25 @@ function PlayerBotScreenController() {
     e.preventDefault();
 
     dialog.close();
+  }
+
+  const renderBoard = () => {
+    gameBoardDiv.textContent = "";
+        for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < 3; j++) {
+        const gameBoard = gameRound.getBoard();
+        const cellVal = gameBoard[i][j].getValue();
+        const defaultValue = gameBoard[i][j].getDefaultValue();
+        const button = document.createElement("button");
+        button.classList.add("cell");
+        button.dataset.row = i;
+        button.dataset.column = j;
+        button.dataset.marker = cellVal;
+
+        button.innerHTML = `${cellVal === defaultValue ? "&nbsp;" : cellVal}`;
+        gameBoardDiv.appendChild(button);
+      }
+    };
   }
 
   function validateDialog(e) {
@@ -634,6 +661,7 @@ function PlayerBotScreenController() {
     botDifficulty = botDifficultyVal;
     assignMarkers(); // assigns random marker
     botName = `${botDifficultyVal === "easy" ? "Jarvis" : "Friday"}`;
+    addPlayers(playerName, playerMarker, botName, botMarker);
 
     console.log({
       playerName,
@@ -644,6 +672,7 @@ function PlayerBotScreenController() {
     });
 
     setCurrentMode("player-bot");
+    renderBoard();
     hideElement(modeSelectionContainer);
     dialog.close();
   }
@@ -708,13 +737,13 @@ function PlayerPlayerScreenController() {
   const assignMarkers = () => {
     let num = getRndInt(0, 20);
     if (num % 2 === 0) {
-        playerOneMarker = "X";
-        playerTwoMarker = "O";
+      playerOneMarker = "X";
+      playerTwoMarker = "O";
     } else {
-        playerOneMarker = "O";
-        playerTwoMarker = "X";
+      playerOneMarker = "O";
+      playerTwoMarker = "X";
     }
-  }
+  };
 
   // dialog showing and mode selection logic
   const showDialog = () => {
