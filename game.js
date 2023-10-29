@@ -862,6 +862,22 @@ PlayerBotScreenController();
 
 function PlayerPlayerScreenController() {
   const boardsContainer = document.querySelector(".boards-container");
+  const boardContainer = document.querySelector(
+    ".player-player-board-container"
+  );
+  const gameBoardDiv = boardContainer.querySelector(".game-board");
+  const playerOneDetailsDiv = boardContainer.querySelector(
+    ".player-one-details"
+  );
+  const playerTwoDetailsDiv = boardContainer.querySelector(
+    ".player-two-details"
+  );
+  const playerOneNameBar = boardContainer.querySelector(".player-one-name");
+  const playerOneMarkerBar = boardContainer.querySelector(".player-one-marker");
+  const playerTwoNameBar = boardContainer.querySelector(".player-two-name");
+  const playerTwoMarkerBar = boardContainer.querySelector(".player-two-marker");
+  const restartRoundBtn = boardContainer.querySelector(".restart-game");
+  const modeSelectionBtn = boardContainer.querySelector(".mode-selection-btn");
   const playerPlayerModeBtn = document.querySelector(
     "button.player-vs-player-mode"
   );
@@ -874,6 +890,7 @@ function PlayerPlayerScreenController() {
   const cancelDialogBtn = dialog.querySelector(".cancel-dialog");
 
   //   round playing logic
+  let gameRound = GameRound();
   let playerOneName = "";
   let playerOneMarker = "";
   let playerTwoName = "";
@@ -920,6 +937,25 @@ function PlayerPlayerScreenController() {
     dialog.close();
   }
 
+  const renderBoard = () => {
+    gameBoardDiv.textContent = "";
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < 3; j++) {
+        const gameBoard = gameRound.getBoard();
+        const cellVal = gameBoard[i][j].getValue();
+        const defaultValue = gameBoard[i][j].getDefaultValue();
+        const button = document.createElement("button");
+        button.classList.add("cell");
+        button.dataset.row = i;
+        button.dataset.column = j;
+        button.dataset.marker = cellVal;
+
+        button.innerHTML = `${cellVal === defaultValue ? "&nbsp;" : cellVal}`;
+        gameBoardDiv.appendChild(button);
+      }
+    }
+  };
+
   function validateDialog(e) {
     e.preventDefault();
 
@@ -951,6 +987,8 @@ function PlayerPlayerScreenController() {
     // playerOneMarker = "X";
     // playerTwoMarker = "O";
     assignMarkers();
+    addPlayers(playerOneName, playerOneMarker, playerTwoName, playerTwoMarker);
+    updateDetailsBar();
 
     console.log({
       playerOneName,
@@ -959,9 +997,92 @@ function PlayerPlayerScreenController() {
       playerTwoMarker,
     });
 
+    checkNextMove();
+
     setCurrentMode("player-player");
+    renderBoard();
     hideElement(modeSelectionContainer);
     dialog.close();
+  }
+
+  function addPlayers(
+    playerOneName,
+    playerOneMarker,
+    playerTwoName,
+    playerTwoMarker
+  ) {
+    gameRound.addHumanPlayer(playerOneName, playerOneMarker);
+    gameRound.addHumanPlayer(playerTwoName, playerTwoMarker);
+  }
+
+  const updateDetailsBar = () => {
+    playerOneNameBar.textContent = playerOneName;
+    playerTwoNameBar.textContent = playerTwoName;
+    playerOneMarkerBar.textContent = playerOneMarker;
+    playerTwoMarkerBar.textContent = playerTwoMarker;
+  };
+
+  const checkNextMove = () => {
+    const activePlayer = gameRound.getActivePlayer();
+
+    if (activePlayer.getName() === playerOneName) {
+      playerOneDetailsDiv.classList.add("active-player");
+    } else {
+      playerTwoDetailsDiv.classList.add("active-player");
+    }
+  };
+
+  let gameWon = false;
+  let gameDraw = false;
+
+  const makeMove = (row, column) => {
+    if (gameWon) {
+      return;
+    }
+
+    if (gameDraw) {
+      return;
+    }
+
+    // const activePlayer = gameRound.getActivePlayer();
+    playerOneDetailsDiv.classList.remove("active-player");
+    playerTwoDetailsDiv.classList.remove("active-player");
+    gameRound.move(row, column);
+    renderBoard();
+
+    checkNextMove();
+    const roundState = gameRound.getRoundState();
+
+    console.log(roundState);
+
+    if (roundState.gameTied) {
+      //   renderGameDraw();
+      console.log("NOBODY WINS");
+      return;
+    }
+
+    if (roundState.gameWon) {
+      // display win msg
+
+      //   renderGameWin();
+
+      console.log(`${roundState.winnerName} has won this round.`);
+      return;
+    }
+  };
+
+  function addMarker(e) {
+    // const activePlayer = gameRound.getActivePlayer();
+
+    const row = e.target.dataset.row;
+    const column = e.target.dataset.column;
+
+    if (!row || !column) {
+      return;
+    }
+
+    makeMove(row, column);
+    // playerDetails.classList.remove("active-player");
   }
 
   function hideElement(elm) {
@@ -974,6 +1095,7 @@ function PlayerPlayerScreenController() {
   cancelDialogBtn.addEventListener("click", closeDialog);
   submitDialogBtn.addEventListener("click", validateDialog);
   form.addEventListener("submit", validateDialog);
+  gameBoardDiv.addEventListener("click", addMarker);
 }
 
 PlayerPlayerScreenController();
