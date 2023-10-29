@@ -499,7 +499,6 @@ function GameRound() {
     console.log(gameBoard.printBoard());
 
     roundState.gameWon = checkWin();
-    roundState.gameTied = gameBoard.drawGame();
 
     if (roundState.gameWon) {
       roundState.winnerName = playerName;
@@ -511,6 +510,8 @@ function GameRound() {
       console.log(roundState.gameWon);
       return;
     }
+
+    roundState.gameTied = gameBoard.drawGame();
 
     if (roundState.gameTied) {
       console.info("NOBODY WINS.");
@@ -937,6 +938,37 @@ function PlayerPlayerScreenController() {
     dialog.close();
   }
 
+  const renderGameDraw = () => {
+    gameBoardDiv.classList.add("game-drawn");
+    gameDraw = true;
+    gameWon = false;
+    // display draw msg
+
+    console.log(`NOBODY WINS`);
+  };
+
+  const renderGameWin = () => {
+    gameBoardDiv.classList.add("game-won");
+    gameWon = true;
+    gameDraw = false;
+
+    const roundState = gameRound.getRoundState();
+
+    const winArr = gameRound.getWinCells();
+    let length = winArr.length;
+    for (let i = 0; i < length; i++) {
+      let cell = winArr[i];
+      let row = cell[0];
+      let col = cell[1];
+      let selector = `[data-row='${row}'][data-column='${col}']`;
+
+      let button = gameBoardDiv.querySelector(`${selector}`);
+      setTimeout(() => {
+        button.classList.add("win-cell");
+      }, i * 110 + 500);
+    }
+  };
+
   const renderBoard = () => {
     gameBoardDiv.textContent = "";
     for (let i = 0; i < 3; i++) {
@@ -1056,7 +1088,7 @@ function PlayerPlayerScreenController() {
     console.log(roundState);
 
     if (roundState.gameTied) {
-      //   renderGameDraw();
+      renderGameDraw();
       console.log("NOBODY WINS");
       return;
     }
@@ -1064,7 +1096,7 @@ function PlayerPlayerScreenController() {
     if (roundState.gameWon) {
       // display win msg
 
-      //   renderGameWin();
+      renderGameWin();
 
       console.log(`${roundState.winnerName} has won this round.`);
       return;
