@@ -424,6 +424,35 @@ function Computer(name, marker) {
         return beta;
       }
     }
+
+    function findBestMove(currBdSt) {
+      let bestScore = -Infinity,
+        bestMove = null,
+        move = null;
+      const availableMoves = getValidMoves(currBdSt.getBoard());
+      const movesCount = availableMoves.length;
+      console.log(movesCount);
+
+      if (movesCount === 9) {
+        let rndMove = getChoice(currBdSt.getBoard());
+        console.log("not using minimax");
+        return rndMove;
+      }
+
+      for (let i = 0; i < movesCount; i++) {
+        move = availableMoves[i];
+        currBdSt.addMarker(move[0], move[1], botMarker);
+        let moveScore = minimax(currBdSt, -Infinity, Infinity, opponentMarker);
+        currBdSt.getBoard()[move[0]][move[1]].addToken("-"); // undo move made;
+
+        if (moveScore > bestScore) {
+          bestScore = moveScore;
+          bestMove = move;
+        }
+      }
+
+      return bestMove;
+    }
   };
 
   return Object.assign({}, player, { getChoice });
