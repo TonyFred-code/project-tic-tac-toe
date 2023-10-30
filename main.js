@@ -346,44 +346,84 @@ function Computer(name, marker) {
       } else {
         return false;
       }
-  }
+    }
 
-  function checkTie(board) {
-     let boardArr = board.getBoard();
+    function checkTie(board) {
+      let boardArr = board.getBoard();
 
-
-         if (
-        (boardArr[0][0].getValue() !== boardArr[0][0].getDefaultValue() &&
-          boardArr[0][1].getValue() !== boardArr[0][1].getDefaultValue() &&
-          boardArr[0][2].getValue() !== boardArr[0][2].getDefaultValue()) &&
-          (boardArr[1][0].getValue() !== boardArr[1][0].getDefaultValue() &&
-          boardArr[1][1].getValue() !== boardArr[1][1].getDefaultValue() &&
-          boardArr[1][2].getValue() !== boardArr[1][2].getDefaultValue()) &&
-        (boardArr[2][0].getValue() !== boardArr[2][0].getDefaultValue() &&
-          boardArr[2][1].getValue() !== boardArr[2][1].getDefaultValue() &&
-          boardArr[2][2].getValue() !== boardArr[2][2].getDefaultValue()) &&
-        (boardArr[0][0].getValue() !== boardArr[0][0].getDefaultValue() &&
-          boardArr[1][0].getValue() !== boardArr[1][0].getDefaultValue() &&
-          boardArr[2][0].getValue() !== boardArr[2][0].getDefaultValue()) &&
-        (boardArr[0][1].getValue() !== boardArr[0][1].getDefaultValue() &&
-          boardArr[1][1].getValue() !== boardArr[1][1].getDefaultValue() &&
-          boardArr[2][1].getValue() !== boardArr[2][1].getDefaultValue()) &&
-        (boardArr[0][2].getValue() !== boardArr[0][2].getDefaultValue() &&
-          boardArr[1][2].getValue() !== boardArr[1][2].getDefaultValue() &&
-          boardArr[2][2].getValue() !== boardArr[2][2].getDefaultValue()) &&
-        (boardArr[0][0].getValue() !== boardArr[0][0].getDefaultValue() &&
-          boardArr[1][1].getValue() !== boardArr[1][1].getDefaultValue() &&
-          boardArr[2][2].getValue() !== boardArr[2][2].getDefaultValue()) &&
-        (boardArr[0][2].getValue() !== boardArr[0][2].getDefaultValue() &&
-          boardArr[1][1].getValue() !== boardArr[1][1].getDefaultValue() &&
-          boardArr[2][0].getValue() !== boardArr[2][0].getDefaultValue())
+      if (
+        boardArr[0][0].getValue() !== boardArr[0][0].getDefaultValue() &&
+        boardArr[0][1].getValue() !== boardArr[0][1].getDefaultValue() &&
+        boardArr[0][2].getValue() !== boardArr[0][2].getDefaultValue() &&
+        boardArr[1][0].getValue() !== boardArr[1][0].getDefaultValue() &&
+        boardArr[1][1].getValue() !== boardArr[1][1].getDefaultValue() &&
+        boardArr[1][2].getValue() !== boardArr[1][2].getDefaultValue() &&
+        boardArr[2][0].getValue() !== boardArr[2][0].getDefaultValue() &&
+        boardArr[2][1].getValue() !== boardArr[2][1].getDefaultValue() &&
+        boardArr[2][2].getValue() !== boardArr[2][2].getDefaultValue() &&
+        boardArr[0][0].getValue() !== boardArr[0][0].getDefaultValue() &&
+        boardArr[1][0].getValue() !== boardArr[1][0].getDefaultValue() &&
+        boardArr[2][0].getValue() !== boardArr[2][0].getDefaultValue() &&
+        boardArr[0][1].getValue() !== boardArr[0][1].getDefaultValue() &&
+        boardArr[1][1].getValue() !== boardArr[1][1].getDefaultValue() &&
+        boardArr[2][1].getValue() !== boardArr[2][1].getDefaultValue() &&
+        boardArr[0][2].getValue() !== boardArr[0][2].getDefaultValue() &&
+        boardArr[1][2].getValue() !== boardArr[1][2].getDefaultValue() &&
+        boardArr[2][2].getValue() !== boardArr[2][2].getDefaultValue() &&
+        boardArr[0][0].getValue() !== boardArr[0][0].getDefaultValue() &&
+        boardArr[1][1].getValue() !== boardArr[1][1].getDefaultValue() &&
+        boardArr[2][2].getValue() !== boardArr[2][2].getDefaultValue() &&
+        boardArr[0][2].getValue() !== boardArr[0][2].getDefaultValue() &&
+        boardArr[1][1].getValue() !== boardArr[1][1].getDefaultValue() &&
+        boardArr[2][0].getValue() !== boardArr[2][0].getDefaultValue()
       ) {
         return true;
       } else {
         return false;
       }
+    }
 
-  }
+    function minimax(currBdSt, alpha, beta, currMark) {
+      // if at a terminal node return a score;
+      if (checkIfWinnerFound(currBdSt, opponentMarker)) {
+        return -1;
+      } else if (checkIfWinnerFound(currBdSt, botMarker)) {
+        return 1;
+      } else if (checkTie(currBdSt)) {
+        return 0;
+      }
+
+      const availableMoves = getValidMoves(currBdSt.getBoard());
+      const movesCount = availableMoves.length;
+      console.log({ movesCount, availableMoves });
+      let move = [],
+        result = null;
+      if (currMark === botMarker) {
+        for (let i = 0; i < movesCount; i++) {
+          move = availableMoves[i];
+          currBdSt.addMarker(move[0], move[1], currMark); // make a possible move;
+          result = minimax(currBdSt, alpha, beta, opponentMarker);
+          currBdSt.getBoard()[move[0]][move[1]].addToken("-"); // undo move made;
+          alpha = Math.max(alpha, result);
+          if (beta <= alpha) {
+            break;
+          }
+        }
+        return alpha;
+      } else {
+        for (let i = 0; i < movesCount; i++) {
+          move = availableMoves[i];
+          currBdSt.addMarker(move[0], move[1], currMark); // make a possible move;
+          result = minimax(currBdSt, alpha, beta, botMarker);
+          currBdSt.getBoard()[move[0]][move[1]].addToken("-"); // undo move made;
+          beta = Math.min(beta, result);
+          if (beta <= alpha) {
+            break;
+          }
+        }
+        return beta;
+      }
+    }
   };
 
   return Object.assign({}, player, { getChoice });
