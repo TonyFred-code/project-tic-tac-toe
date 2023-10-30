@@ -456,7 +456,7 @@ function Computer(name, marker) {
 
     const choice = findBestMove(currentBoard);
 
-    return choice
+    return choice;
   };
 
   return Object.assign({}, player, { getChoice, getSmartChoice });
@@ -982,9 +982,15 @@ function PlayerBotScreenController() {
 
   const botMove = () => {
     const board = gameRound.getBoard();
-    const player = gameRound.getActivePlayer();
-    console.log(player.getName());
-    const choice = player.getChoice(board);
+    const bot = gameRound.getActivePlayer();
+    console.log(bot.getName());
+    let choice = null;
+    if (botDifficulty === "hard") {
+      console.log("using hard choice");
+      choice = bot.getSmartChoice(board, botMarker, playerMarker);
+    } else {
+      choice = bot.getChoice(board);
+    }
     console.log(choice);
     const row = choice[0];
     const column = choice[1];
