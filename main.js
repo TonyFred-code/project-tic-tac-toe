@@ -453,9 +453,13 @@ function Computer(name, marker) {
 
       return bestMove;
     }
+
+    const choice = findBestMove(currentBoard);
+
+    return choice
   };
 
-  return Object.assign({}, player, { getChoice });
+  return Object.assign({}, player, { getChoice, getSmartChoice });
 }
 
 function GameRound() {
