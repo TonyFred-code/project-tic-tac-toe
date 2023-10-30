@@ -5,7 +5,7 @@
  ** "O": Player Two's marker
  */
 
- function Cell() {
+function Cell() {
   let value = "-"; // dash chosen as default cell marker;
   const defaultValue = value;
 
@@ -284,7 +284,29 @@ function Computer(name, marker) {
     return move;
   };
 
-  const getSmartChoice = () => {}
+  const getSmartChoice = (board, botMarker, opponentMarker) => {
+    // board is an array of all cells on board currently
+    // each cell is an object with two methods
+    // method getValue returns current value on cell
+    // method getDefaultValue return value the cell was initialized with "-";
+    if (!board || !botMarker || !opponentMarker) return;
+
+    if (!Array.isArray(board)) return;
+
+    function recreateBoard(currentBoard) {
+      const newBoard = GameBoard();
+
+      for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+          const cell = currentBoard[i][j];
+          const cellMarker = cell.getValue();
+          if (cellMarker === cell.getDefaultValue()) continue;
+          newBoard.addMarker(i, j, cellMarker);
+        }
+      }
+      return newBoard;
+    }
+  };
 
   return Object.assign({}, player, { getChoice });
 }
