@@ -306,6 +306,84 @@ function Computer(name, marker) {
       }
       return newBoard;
     }
+
+    let currentBoard = recreateBoard(board);
+
+    // bot has a getValid moves
+    // which returns a one-dimensional array of all valid moves bot can make;
+
+    function checkIfWinnerFound(board, currMark) {
+      // a terminal function to check for winner
+      let boardArr = board.getBoard();
+
+      if (
+        (boardArr[0][0].getValue() === currMark &&
+          boardArr[0][1].getValue() === currMark &&
+          boardArr[0][2].getValue() === currMark) ||
+        (boardArr[1][0].getValue() === currMark &&
+          boardArr[1][1].getValue() === currMark &&
+          boardArr[1][2].getValue() === currMark) ||
+        (boardArr[2][0].getValue() === currMark &&
+          boardArr[2][1].getValue() === currMark &&
+          boardArr[2][2].getValue() === currMark) ||
+        (boardArr[0][0].getValue() === currMark &&
+          boardArr[1][0].getValue() === currMark &&
+          boardArr[2][0].getValue() === currMark) ||
+        (boardArr[0][1].getValue() === currMark &&
+          boardArr[1][1].getValue() === currMark &&
+          boardArr[2][1].getValue() === currMark) ||
+        (boardArr[0][2].getValue() === currMark &&
+          boardArr[1][2].getValue() === currMark &&
+          boardArr[2][2].getValue() === currMark) ||
+        (boardArr[0][0].getValue() === currMark &&
+          boardArr[1][1].getValue() === currMark &&
+          boardArr[2][2].getValue() === currMark) ||
+        (boardArr[0][2].getValue() === currMark &&
+          boardArr[1][1].getValue() === currMark &&
+          boardArr[2][0].getValue() === currMark)
+      ) {
+        return true;
+      } else {
+        return false;
+      }
+  }
+
+  function checkTie(board) {
+     let boardArr = board.getBoard();
+
+
+         if (
+        (boardArr[0][0].getValue() !== boardArr[0][0].getDefaultValue() &&
+          boardArr[0][1].getValue() !== boardArr[0][1].getDefaultValue() &&
+          boardArr[0][2].getValue() !== boardArr[0][2].getDefaultValue()) &&
+          (boardArr[1][0].getValue() !== boardArr[1][0].getDefaultValue() &&
+          boardArr[1][1].getValue() !== boardArr[1][1].getDefaultValue() &&
+          boardArr[1][2].getValue() !== boardArr[1][2].getDefaultValue()) &&
+        (boardArr[2][0].getValue() !== boardArr[2][0].getDefaultValue() &&
+          boardArr[2][1].getValue() !== boardArr[2][1].getDefaultValue() &&
+          boardArr[2][2].getValue() !== boardArr[2][2].getDefaultValue()) &&
+        (boardArr[0][0].getValue() !== boardArr[0][0].getDefaultValue() &&
+          boardArr[1][0].getValue() !== boardArr[1][0].getDefaultValue() &&
+          boardArr[2][0].getValue() !== boardArr[2][0].getDefaultValue()) &&
+        (boardArr[0][1].getValue() !== boardArr[0][1].getDefaultValue() &&
+          boardArr[1][1].getValue() !== boardArr[1][1].getDefaultValue() &&
+          boardArr[2][1].getValue() !== boardArr[2][1].getDefaultValue()) &&
+        (boardArr[0][2].getValue() !== boardArr[0][2].getDefaultValue() &&
+          boardArr[1][2].getValue() !== boardArr[1][2].getDefaultValue() &&
+          boardArr[2][2].getValue() !== boardArr[2][2].getDefaultValue()) &&
+        (boardArr[0][0].getValue() !== boardArr[0][0].getDefaultValue() &&
+          boardArr[1][1].getValue() !== boardArr[1][1].getDefaultValue() &&
+          boardArr[2][2].getValue() !== boardArr[2][2].getDefaultValue()) &&
+        (boardArr[0][2].getValue() !== boardArr[0][2].getDefaultValue() &&
+          boardArr[1][1].getValue() !== boardArr[1][1].getDefaultValue() &&
+          boardArr[2][0].getValue() !== boardArr[2][0].getDefaultValue())
+      ) {
+        return true;
+      } else {
+        return false;
+      }
+
+  }
   };
 
   return Object.assign({}, player, { getChoice });
