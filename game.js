@@ -266,3 +266,185 @@ function HumanPlayer(name, marker) {
 
   return Object.assign({}, player);
 }
+
+// allows add one choice making logic for bot move making
+function Computer(name, marker) {
+  const player = Player(name, marker);
+
+  const getRndInt = (min, max) => {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1) + min);
+  };
+
+  const getValidMoves = (board) => {
+    const validMoves = [];
+
+    for (let i = 0; i < 9; i++) {
+      const cell = board[i];
+      if (cell.getValue() !== cell.getDefaultValue()) continue;
+      validMoves.push(i);
+    }
+
+    return validMoves;
+  };
+
+  const getChoice = (board) => {
+    if (!board) return;
+
+    const validMoves = getValidMoves(board);
+    const index = getRndInt(0, validMoves.length - 1);
+    const move = validMoves[index];
+    return move;
+  };
+
+  const getSmartChoice = (board, botMarker, opponentMarker) => {
+    // board is an array of all cells on board currently
+    // each cell is an object with two methods
+    // method getValue returns current value on cell
+    // method getDefaultValue return value the cell was initialized with "-";
+    if (!board || !botMarker || !opponentMarker) return;
+
+    if (!Array.isArray(board)) return;
+
+    function recreateBoard(currentBoard) {
+      const newBoard = GameBoard();
+
+      for (let i = 0; i < 9; i++) {
+        const cell = currentBoard[i];
+        const cellMarker = cell.getValue();
+        if (cellMarker === cell.getDefaultValue()) continue;
+        newBoard.addMarker(i, cellMarker);
+      }
+      return newBoard;
+    }
+
+    let currentBoard = recreateBoard(board);
+
+    // bot has a getValid moves
+    // which returns a one-dimensional array of all valid moves bot can make;
+
+    function checkIfWinnerFound(board, currMark) {
+      // a terminal function to check for winner
+      let boardArr = board.getBoard();
+
+      if (
+        (boardArr[0].getValue() === currMark &&
+          boardArr[1].getValue() === currMark &&
+          boardArr[2].getValue() === currMark) ||
+        (boardArr[3].getValue() === currMark &&
+          boardArr[4].getValue() === currMark &&
+          boardArr[5].getValue() === currMark) ||
+        (boardArr[6].getValue() === currMark &&
+          boardArr[7].getValue() === currMark &&
+          boardArr[8].getValue() === currMark) ||
+        (boardArr[0].getValue() === currMark &&
+          boardArr[3].getValue() === currMark &&
+          boardArr[6].getValue() === currMark) ||
+        (boardArr[1].getValue() === currMark &&
+          boardArr[4].getValue() === currMark &&
+          boardArr[7].getValue() === currMark) ||
+        (boardArr[2].getValue() === currMark &&
+          boardArr[5].getValue() === currMark &&
+          boardArr[8].getValue() === currMark) ||
+        (boardArr[0].getValue() === currMark &&
+          boardArr[4].getValue() === currMark &&
+          boardArr[8].getValue() === currMark) ||
+        (boardArr[2].getValue() === currMark &&
+          boardArr[4].getValue() === currMark &&
+          boardArr[6].getValue() === currMark)
+      ) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    function checkTie(board) {
+      let boardArr = board.getBoard();
+
+      if (board.drawGame()) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    function minimax(currBdSt, alpha, beta, currMark) {
+      // if at a terminal node return a score;
+      if (checkIfWinnerFound(currBdSt, opponentMarker)) {
+        return -1;
+      } else if (checkIfWinnerFound(currBdSt, botMarker)) {
+        return 1;
+      } else if (checkTie(currBdSt)) {
+        return 0;
+      }
+
+      const availableMoves = getValidMoves(currBdSt.getBoard());
+      const movesCount = availableMoves.length;
+      console.log({ movesCount, availableMoves });
+      let move = [],
+        result = null;
+      if (currMark === botMarker) {
+        for (let i = 0; i < movesCount; i++) {
+          move = availableMoves[i];
+          currBdSt.addMarker(move, currMark); // make a possible move;
+          result = minimax(currBdSt, alpha, beta, opponentMarker);
+          currBdSt.getBoard()[move].addToken("-"); // undo move made;
+          alpha = Math.max(alpha, result);
+          if (beta <= alpha) {
+            break;
+          }
+        }
+        return alpha;
+      } else {
+        for (let i = 0; i < movesCount; i++) {
+          move = availableMoves[i];
+          currBdSt.addMarker(move, currMark); // make a possible move;
+          result = minimax(currBdSt, alpha, beta, botMarker);
+          currBdSt.getBoard()[move].addToken("-"); // undo move made;
+          beta = Math.min(beta, result);
+          if (beta <= alpha) {
+            break;
+          }
+        }
+        return beta;
+      }
+    }
+
+    function findBestMove(currBdSt) {
+      let bestScore = -Infinity,
+        bestMove = null,
+        move = null;
+      const availableMoves = getValidMoves(currBdSt.getBoard());
+      const movesCount = availableMoves.length;
+      console.log(movesCount);
+
+      if (movesCount === 9) {
+        let rndMove = getChoice(currBdSt.getBoard());
+        console.log("not using minimax");
+        return rndMove;
+      }
+
+      for (let i = 0; i < movesCount; i++) {
+        move = availableMoves[i];
+        currBdSt.addMarker(move, botMarker);
+        let moveScore = minimax(currBdSt, -Infinity, Infinity, opponentMarker);
+        currBdSt.getBoard()[move].addToken("-"); // undo move made;
+
+        if (moveScore > bestScore) {
+          bestScore = moveScore;
+          bestMove = move;
+        }
+      }
+
+      return bestMove;
+    }
+
+    const choice = findBestMove(currentBoard);
+
+    return choice;
+  };
+
+  return Object.assign({}, player, { getChoice, getSmartChoice });
+}
