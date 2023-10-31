@@ -616,23 +616,23 @@ function GameRound() {
   // checks for win or tie after making move
   //   switch active player to next player
 
-  const getIndex = (row, column) => {
-    let store = {
-        "0, 0": 0,
-        "0, 1": 1,
-        "0, 2": 2,
-        "1, 0": 3,
-        "1, 1": 4,
-        "1, 2": 5,
-        "2, 0": 6,
-        "2, 1": 7,
-        "2, 2": 8,
-    }
+  //   const getIndex = (row, column) => {
+  //     let store = {
+  //       "0, 0": 0,
+  //       "0, 1": 1,
+  //       "0, 2": 2,
+  //       "1, 0": 3,
+  //       "1, 1": 4,
+  //       "1, 2": 5,
+  //       "2, 0": 6,
+  //       "2, 1": 7,
+  //       "2, 2": 8,
+  //     };
 
-    return store[`${row}, ${column}`];
-  }
+  //     return store[`${row}, ${column}`];
+  //   };
 
-  const move = (row, column) => {
+  const move = (cellPos) => {
     if (roundState.gameWon) {
       console.warn("Winner Found. Move Disallowed");
       return;
@@ -642,8 +642,6 @@ function GameRound() {
       console.warn("Game Drawn.");
       return;
     }
-
-
 
     const currentPlayer = getActivePlayer();
 
@@ -656,28 +654,24 @@ function GameRound() {
     const playerMarker = currentPlayer.getMarker();
 
     console.log(
-      `${playerName} wants to add his marker - ${playerMarker} to Row - ${row} Column ${column}`
+      `${playerName} wants to add his marker - ${playerMarker} to Cell Position ${cellPos}`
     );
 
     // check if making a move should be allowed;
     // such as when game is tied or winner has been;
 
-    console.log(
-      `Adding marker - ${playerMarker} to Row - ${row} Column - ${column}`
-    );
+    console.log(`Adding marker - ${playerMarker} to Cell Position ${cellPos}`);
 
-    let cellPosition = getIndex(row, column);
+    // let cellPosition = getIndex(row, column);
 
-    const markerAdded = gameBoard.addMarker(cellPosition, playerMarker);
+    const markerAdded = gameBoard.addMarker(cellPos, playerMarker);
 
     if (!markerAdded) {
       console.warn("Failed to Add Marker");
       return;
     }
 
-    console.log(
-      `Added marker - ${playerMarker} to Row - ${row} Column - ${column} - CellPosition ${cellPosition}`
-    );
+    console.log(`Added marker - ${playerMarker} to Cell Position ${cellPos}`);
     console.log("Printing New Board");
     console.log(gameBoard.printBoard());
 
@@ -719,3 +713,691 @@ function GameRound() {
     // diagonalWin,
   };
 }
+
+// Player Bot Screen Controller
+function PlayerBotScreenController() {
+  const boardsContainer = document.querySelector(".boards-container");
+  const boardContainer = document.querySelector(".player-bot-board-container");
+  const gameBoardDiv = boardContainer.querySelector(".game-board");
+  const botDetails = boardContainer.querySelector(".bot-details");
+  const playerDetails = boardContainer.querySelector(".player-details");
+  const playerNameBar = boardContainer.querySelector(".player-name");
+  const playerMarkerBar = boardContainer.querySelector(".player-marker");
+  const botNameBar = boardContainer.querySelector(".bot-name");
+  const botMarkerBar = boardContainer.querySelector(".bot-marker");
+  const restartRoundBtn = boardContainer.querySelector(".restart-game");
+  const modeSelectionBtn = boardContainer.querySelector(".mode-selection-btn");
+  const gameWinDiv = boardContainer.querySelector(".game-win-bar");
+  const gameDrawDiv = boardContainer.querySelector(".game-draw-bar");
+  const playerBotDetailsDiv = boardContainer.querySelector(
+    ".player-bot-details"
+  );
+  const modeSelectionContainer = document.querySelector(
+    ".mode-selection-container"
+  );
+  const playerBotModeBtn = document.querySelector("button.bot-vs-player-mode");
+  const dialog = document.querySelector("dialog#player-bot");
+  const form = dialog.querySelector("form");
+  const errMsgContainer = dialog.querySelector(".player-name-err");
+  const submitDialogBtn = dialog.querySelector(".submit-dialog");
+  const cancelDialogBtn = dialog.querySelector(".cancel-dialog");
+
+  //   Round Playing Logic
+  let gameRound = GameRound();
+  let botName = "";
+  let botMarker = "";
+  let playerName = "";
+  let playerMarker = "";
+  let botDifficulty = "";
+
+  const setNewMode = (newMode) => {
+    if (newMode !== "none" && newMode !== "player-bot") {
+      console.log("mode not accepted");
+      return;
+    }
+
+    boardsContainer.dataset.mode = newMode;
+  };
+
+  const getCurrentMode = () => {
+    const mode = boardsContainer.dataset.mode;
+
+    if (!mode) {
+      console.log("mode not found");
+      return;
+    }
+
+    // console.log(mode);
+    return mode;
+  };
+
+  const addPlayers = (playerName, playerMarker, botName, botMarker) => {
+    gameRound.addHumanPlayer(playerName, playerMarker);
+    gameRound.addBotPlayer(botName, botMarker);
+  };
+
+  const updateDetailsBar = () => {
+    playerNameBar.textContent = playerName;
+    playerMarkerBar.textContent = playerMarker;
+    botNameBar.textContent = botName;
+    botMarkerBar.textContent = botMarker;
+  };
+
+  const assignMarkers = () => {
+    let milliseconds = Date.now();
+
+    if (milliseconds % 2 === 0) {
+      playerMarker = "X";
+      botMarker = "O";
+    } else {
+      playerMarker = "O";
+      botMarker = "X";
+    }
+  };
+
+  // dialog showing and mode selection logic
+  const showDialog = () => {
+    dialog.showModal();
+  };
+
+  function closeDialog(e) {
+    e.preventDefault();
+
+    dialog.close();
+  }
+
+  const renderGameDraw = () => {
+    gameBoardDiv.classList.add("game-drawn");
+    gameDraw = true;
+    gameWon = false;
+    // display draw msg
+    showElement(gameDrawDiv);
+    hideElement(playerBotDetailsDiv);
+    console.log(`NOBODY WINS`);
+  };
+
+  const renderGameWin = () => {
+    gameBoardDiv.classList.add("game-won");
+    gameWon = true;
+    gameDraw = false;
+
+    const roundState = gameRound.getRoundState();
+
+    const winArr = gameRound.getWinCells();
+    let length = winArr.length;
+    for (let i = 0; i < length; i++) {
+      let cellPos = winArr[i];
+      let selector = `[data-position='${cellPos}']`;
+
+      let button = gameBoardDiv.querySelector(`${selector}`);
+      setTimeout(() => {
+        button.classList.add("win-cell");
+      }, i * 110 + 500);
+    }
+
+    gameWinDiv.textContent = `${roundState.winnerName} wins 🎊️😁️🎊️`;
+    showElement(gameWinDiv);
+    hideElement(playerBotDetailsDiv);
+  };
+
+  const renderBoard = () => {
+    let mode = getCurrentMode();
+    if (mode !== "player-bot") {
+      return;
+    }
+
+    gameBoardDiv.textContent = "";
+    for (let i = 0; i < 9; i++) {
+      const gameBoard = gameRound.getBoard();
+      const cellVal = gameBoard[i].getValue();
+      const defaultValue = gameBoard[i].getDefaultValue();
+      const button = document.createElement("button");
+      button.classList.add("cell");
+      button.dataset.position = i;
+      button.dataset.marker = cellVal;
+
+      button.innerHTML = `${cellVal === defaultValue ? "&nbsp;" : cellVal}`;
+      gameBoardDiv.appendChild(button);
+    }
+  };
+
+  function validateDialog(e) {
+    e.preventDefault();
+
+    console.log("validating player bot form");
+    const form = dialog.querySelector("form");
+    const playerNameVal = form["player-name"].value;
+    // const playerMarkerVal = form["player-marker"].value;
+    const botDifficultyVal = form["bot-difficulty"].value;
+
+    if (playerNameVal.trim() === "") {
+      console.warn("enter a name of at least one valid character length");
+      // todo: display UI error for when invalid
+      showElement(errMsgContainer);
+      form["player-name"].focus();
+      return;
+    }
+
+    hideElement(errMsgContainer);
+
+    // if (!playerMarkerVal) {
+    //   console.warn("select one marker");
+    //   return;
+    // }
+
+    if (!botDifficultyVal) {
+      console.warn("select a difficulty choice");
+      return;
+    }
+
+    gameRound = GameRound();
+    playerName = playerNameVal;
+    botDifficulty = botDifficultyVal;
+    assignMarkers(); // assigns random marker
+    botName = `${botDifficultyVal === "easy" ? "Friday" : "Jarvis"}`;
+    gameRound.removePlayers();
+    addPlayers(playerName, playerMarker, botName, botMarker);
+    updateDetailsBar();
+    checkNextMove();
+
+    console.log({
+      playerName,
+      playerMarker,
+      botMarker,
+      botName,
+      botDifficultyVal,
+    });
+
+    setNewMode("player-bot");
+    renderBoard();
+    hideElement(modeSelectionContainer);
+    dialog.close();
+  }
+
+  const checkNextMove = () => {
+    const activePlayer = gameRound.getActivePlayer();
+
+    if (activePlayer.getName() === botName) {
+      botDetails.classList.add("active-player");
+      setTimeout(() => {
+        botMove();
+      }, 1200);
+    } else {
+      playerDetails.classList.add("active-player");
+    }
+  };
+
+  let gameWon = false;
+  let gameDraw = false;
+
+  const makeMove = (cellPos) => {
+    let mode = getCurrentMode();
+    if (mode !== "player-bot") {
+      return;
+    }
+
+    if (gameWon) {
+      return;
+    }
+
+    if (gameDraw) {
+      return;
+    }
+
+    gameRound.move(cellPos);
+    renderBoard();
+
+    const activePlayer = gameRound.getActivePlayer();
+
+    if (activePlayer.getName() === botName) {
+      botDetails.classList.add("active-player");
+    } else {
+      playerDetails.classList.add("active-player");
+    }
+
+    const roundState = gameRound.getRoundState();
+
+    if (roundState.gameTied) {
+      renderGameDraw();
+      console.log("Game Tied");
+      return;
+    }
+
+    if (roundState.gameWon) {
+      // display win msg
+
+      renderGameWin();
+
+      console.log(`${roundState.winnerName} has won this round.`);
+      return;
+    }
+
+    checkNextMove();
+  };
+
+  const botMove = () => {
+    const board = gameRound.getBoard();
+    const bot = gameRound.getActivePlayer();
+    console.log(bot.getName());
+    let choice = null;
+    if (botDifficulty === "hard") {
+      console.log("using hard choice");
+      choice = bot.getSmartChoice(board, botMarker, playerMarker);
+    } else {
+      choice = bot.getChoice(board);
+    }
+    console.log(choice);
+    // const row = choice[0];
+    // const column = choice[1];
+
+    // setTimeout(() => {
+    makeMove(choice);
+    botDetails.classList.remove("active-player");
+    // }, 1000);
+  };
+
+  function addMarker(e) {
+    const activePlayer = gameRound.getActivePlayer();
+
+    if (activePlayer.getName() === botName) {
+      console.warn("Move disallowed");
+      return;
+    }
+
+    const cellPos = e.target.dataset.position;
+
+    if (!cellPos) {
+      return;
+    }
+
+    makeMove(cellPos);
+    playerDetails.classList.remove("active-player");
+  }
+
+  function restartRound() {
+    gameRound = GameRound();
+    assignMarkers();
+    addPlayers(playerName, playerMarker, botName, botMarker);
+    updateDetailsBar();
+    gameWon = false;
+    gameDraw = false;
+    hideElement(gameWinDiv);
+    hideElement(gameDrawDiv);
+    showElement(playerBotDetailsDiv);
+
+    let mode = getCurrentMode();
+    if (mode !== "player-bot") {
+      return;
+    }
+
+    setTimeout(() => {
+      checkNextMove();
+    }, 800);
+    renderBoard();
+  }
+
+  function hideElement(elm) {
+    if (!elm) return;
+
+    elm.classList.add("hidden");
+  }
+
+  function showElement(elm) {
+    if (!elm) return;
+
+    elm.classList.remove("hidden");
+  }
+
+  playerBotModeBtn.addEventListener("click", showDialog);
+  cancelDialogBtn.addEventListener("click", closeDialog);
+  submitDialogBtn.addEventListener("click", validateDialog);
+  form.addEventListener("submit", validateDialog);
+  gameBoardDiv.addEventListener("click", addMarker);
+  restartRoundBtn.addEventListener("click", restartRound);
+  modeSelectionBtn.addEventListener("click", () => {
+    setNewMode("none");
+    showElement(modeSelectionContainer);
+    restartRound();
+    gameRound.removePlayers();
+  });
+  dialog.addEventListener("close", (e) => {
+    const form = dialog.querySelector("form");
+
+    form["player-name"].value = "Player 1";
+
+    console.log("closed");
+  });
+}
+
+PlayerBotScreenController();
+
+function PlayerPlayerScreenController() {
+  const boardsContainer = document.querySelector(".boards-container");
+  const boardContainer = document.querySelector(
+    ".player-player-board-container"
+  );
+  const gameBoardDiv = boardContainer.querySelector(".game-board");
+  const playerOneDetailsDiv = boardContainer.querySelector(
+    ".player-one-details"
+  );
+  const playerTwoDetailsDiv = boardContainer.querySelector(
+    ".player-two-details"
+  );
+  const playerOneNameBar = boardContainer.querySelector(".player-one-name");
+  const playerOneMarkerBar = boardContainer.querySelector(".player-one-marker");
+  const playerTwoNameBar = boardContainer.querySelector(".player-two-name");
+  const playerTwoMarkerBar = boardContainer.querySelector(".player-two-marker");
+  const restartRoundBtn = boardContainer.querySelector(".restart-game");
+  const modeSelectionBtn = boardContainer.querySelector(".mode-selection-btn");
+  const playerPlayerModeBtn = document.querySelector(
+    "button.player-vs-player-mode"
+  );
+  const modeSelectionContainer = document.querySelector(
+    ".mode-selection-container"
+  );
+  const dialog = document.querySelector("dialog#player-player");
+  const playerOneErrMsgContainer = dialog.querySelector(".player-one-err-msg");
+  const playerTwoErrMsgContainer = dialog.querySelector(".player-two-err-msg");
+  const form = dialog.querySelector("form");
+  const submitDialogBtn = dialog.querySelector(".submit-dialog");
+  const cancelDialogBtn = dialog.querySelector(".cancel-dialog");
+  const gameWinDiv = boardContainer.querySelector(".game-win-bar");
+  const gameDrawDiv = boardContainer.querySelector(".game-draw-bar");
+  const playersDetailsDiv = boardContainer.querySelector(
+    ".player-player-details"
+  );
+
+  //   round playing logic
+  let gameRound = GameRound();
+  let playerOneName = "";
+  let playerOneMarker = "";
+  let playerTwoName = "";
+  let playerTwoMarker = "";
+
+  const setNewMode = (newMode) => {
+    if (newMode !== "none" && newMode !== "player-player") {
+      console.log("mode not accepted");
+      return;
+    }
+
+    boardsContainer.dataset.mode = newMode;
+  };
+
+  const getCurrentMode = () => {
+    const mode = boardsContainer.dataset.mode;
+
+    if (!mode) {
+      console.log("mode not found");
+      return;
+    }
+
+    return mode;
+  };
+
+  const assignMarkers = () => {
+    let milliseconds = Date.now();
+
+    if (milliseconds % 2 === 0) {
+      playerOneMarker = "X";
+      playerTwoMarker = "O";
+    } else {
+      playerOneMarker = "O";
+      playerTwoMarker = "X";
+    }
+  };
+
+  // dialog showing and mode selection logic
+  const showDialog = () => {
+    dialog.showModal();
+  };
+
+  function closeDialog(e) {
+    e.preventDefault();
+
+    dialog.close();
+  }
+
+  const renderGameDraw = () => {
+    gameBoardDiv.classList.add("game-drawn");
+    gameDraw = true;
+    gameWon = false;
+    // display draw msg
+    showElement(gameDrawDiv);
+    hideElement(playersDetailsDiv);
+    console.log(`NOBODY WINS`);
+  };
+
+  const renderGameWin = () => {
+    gameBoardDiv.classList.add("game-won");
+    gameWon = true;
+    gameDraw = false;
+
+    const roundState = gameRound.getRoundState();
+
+    const winArr = gameRound.getWinCells();
+    let length = winArr.length;
+    for (let i = 0; i < length; i++) {
+      let cellPos = winArr[i];
+      let selector = `[data-position='${cellPos}']`;
+
+      let button = gameBoardDiv.querySelector(`${selector}`);
+      setTimeout(() => {
+        button.classList.add("win-cell");
+      }, i * 110 + 500);
+    }
+    // display win msg
+    gameWinDiv.textContent = `${roundState.winnerName} wins 🎊️😁️🎊️`;
+    showElement(gameWinDiv);
+    hideElement(playersDetailsDiv);
+  };
+
+  const renderBoard = () => {
+    gameBoardDiv.textContent = "";
+    for (let i = 0; i < 9; i++) {
+        const gameBoard = gameRound.getBoard();
+        const cellVal = gameBoard[i].getValue();
+        const defaultValue = gameBoard[i].getDefaultValue();
+        const button = document.createElement("button");
+        button.classList.add("cell");
+        button.dataset.position = i;
+        button.dataset.marker = cellVal;
+
+        button.innerHTML = `${cellVal === defaultValue ? "&nbsp;" : cellVal}`;
+        gameBoardDiv.appendChild(button);
+      }
+  };
+
+  function validateDialog(e) {
+    e.preventDefault();
+
+    console.log("validating player-player");
+    const form = dialog.querySelector("form");
+    const playerOneNameVal = form["player-one"].value;
+    const playerTwoNameVal = form["player-two"].value;
+
+    if (playerOneNameVal.trim() === "") {
+      console.warn(
+        "enter a valid name for player one of at least one character long"
+      );
+
+      showElement(playerOneErrMsgContainer);
+      form["player-one"].focus();
+      return;
+    }
+
+    if (playerTwoNameVal.trim() === "") {
+      console.warn(
+        "enter a valid name for player two of at least one character long"
+      );
+
+      showElement(playerTwoErrMsgContainer);
+      form["player-two"].focus();
+      return;
+    }
+
+    hideElement(playerOneErrMsgContainer);
+    hideElement(playerTwoErrMsgContainer);
+
+    playerOneName = playerOneNameVal;
+    playerTwoName = playerTwoNameVal;
+    // playerOneMarker = "X";
+    // playerTwoMarker = "O";
+    assignMarkers();
+    addPlayers(playerOneName, playerOneMarker, playerTwoName, playerTwoMarker);
+    updateDetailsBar();
+
+    console.log({
+      playerOneName,
+      playerOneMarker,
+      playerTwoName,
+      playerTwoMarker,
+    });
+
+    checkNextMove();
+
+    setNewMode("player-player");
+    renderBoard();
+    hideElement(modeSelectionContainer);
+    dialog.close();
+  }
+
+  function addPlayers(
+    playerOneName,
+    playerOneMarker,
+    playerTwoName,
+    playerTwoMarker
+  ) {
+    gameRound.addHumanPlayer(playerOneName, playerOneMarker);
+    gameRound.addHumanPlayer(playerTwoName, playerTwoMarker);
+  }
+
+  const updateDetailsBar = () => {
+    playerOneNameBar.textContent = playerOneName;
+    playerTwoNameBar.textContent = playerTwoName;
+    playerOneMarkerBar.textContent = playerOneMarker;
+    playerTwoMarkerBar.textContent = playerTwoMarker;
+  };
+
+  const checkNextMove = () => {
+    const activePlayer = gameRound.getActivePlayer();
+    playerOneDetailsDiv.classList.remove("active-player");
+    playerTwoDetailsDiv.classList.remove("active-player");
+
+    if (activePlayer.getName() === playerOneName) {
+      playerOneDetailsDiv.classList.add("active-player");
+    } else {
+      playerTwoDetailsDiv.classList.add("active-player");
+    }
+  };
+
+  let gameWon = false;
+  let gameDraw = false;
+
+  const makeMove = (cellPos) => {
+    if (gameWon) {
+      return;
+    }
+
+    if (gameDraw) {
+      return;
+    }
+
+    // const activePlayer = gameRound.getActivePlayer();
+    gameRound.move(cellPos);
+    renderBoard();
+
+    const roundState = gameRound.getRoundState();
+
+    console.log(roundState);
+
+    if (roundState.gameTied) {
+      renderGameDraw();
+      console.log("NOBODY WINS");
+      return;
+    }
+
+    if (roundState.gameWon) {
+      renderGameWin();
+
+      console.log(`${roundState.winnerName} has won this round.`);
+      return;
+    }
+
+    checkNextMove();
+  };
+
+  function addMarker(e) {
+    // const activePlayer = gameRound.getActivePlayer();
+    console.log("added");
+
+    const cellPos = e.target.dataset.position;
+
+    if (!cellPos) {
+      return;
+    }
+
+    makeMove(cellPos);
+    // playerDetails.classList.remove("active-player");
+  }
+
+  function restartRound() {
+    gameRound.removePlayers();
+    gameRound = GameRound();
+    assignMarkers();
+    addPlayers(playerOneName, playerOneMarker, playerTwoName, playerTwoMarker);
+    updateDetailsBar();
+    hideElement(gameWinDiv);
+    hideElement(gameDrawDiv);
+    showElement(playersDetailsDiv);
+
+    gameWon = false;
+    gameDraw = false;
+
+    let mode = getCurrentMode();
+    if (mode !== "player-player") {
+      console.log("going back");
+      return;
+    }
+    setTimeout(() => {
+      checkNextMove();
+    }, 300);
+
+    renderBoard();
+  }
+
+  function hideElement(elm) {
+    if (!elm) return;
+
+    elm.classList.add("hidden");
+  }
+
+  function showElement(elm) {
+    if (!elm) return;
+
+    elm.classList.remove("hidden");
+  }
+
+  playerPlayerModeBtn.addEventListener("click", showDialog);
+  cancelDialogBtn.addEventListener("click", closeDialog);
+  submitDialogBtn.addEventListener("click", validateDialog);
+  form.addEventListener("submit", validateDialog);
+  gameBoardDiv.addEventListener("click", addMarker);
+  restartRoundBtn.addEventListener("click", restartRound);
+  modeSelectionBtn.addEventListener("click", () => {
+    setNewMode("none");
+    showElement(modeSelectionContainer);
+    restartRound();
+    gameRound.removePlayers();
+  });
+
+  dialog.addEventListener("close", (e) => {
+    const form = dialog.querySelector("form");
+
+    form["player-one"].value = "Player 1";
+    form["player-two"].value = "Player 2";
+
+    console.log("closed");
+  });
+}
+
+PlayerPlayerScreenController();
