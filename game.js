@@ -181,12 +181,11 @@ function GameBoard() {
     let diagonals = {
       diagonal0: false,
       diagonal1: false,
-      diagonal2: false,
     };
 
     let diagonalWins = [
-      [0, 3, 6],
-      [1, 4, 7],
+      [2, 4, 6],
+      [0, 4, 8],
     ];
 
     let firstCellMarker,
@@ -447,4 +446,276 @@ function Computer(name, marker) {
   };
 
   return Object.assign({}, player, { getChoice, getSmartChoice });
+}
+
+function GameRound() {
+  const gameBoard = GameBoard();
+
+  const players = [];
+
+  const removePlayers = () => {
+    if (players.length === 0) {
+      console.log("add players before removing them");
+      return;
+    }
+    players.splice(0, players.length);
+  };
+
+  const addHumanPlayer = (name, marker) => {
+    if (!name || !marker) {
+      return;
+    }
+
+    if (playersComplete()) {
+      console.warn(`Refused to add ${name}. Players complete.`);
+      return;
+    }
+
+    players.push(HumanPlayer(name, marker));
+    console.info(`Added ${name}. Assigned "${marker}" as marker.`);
+    assignActivePlayer();
+  };
+
+  const addBotPlayer = (name, marker) => {
+    if (!name || !marker) {
+      return;
+    }
+
+    if (playersComplete()) {
+      console.warn(`Refused to add ${name}. Players complete`);
+      return;
+    }
+
+    players.push(Computer(name, marker));
+    console.info(`Added ${name} as Bot. Assigned "${marker}" as marker.`);
+    assignActivePlayer();
+  };
+
+  const playersComplete = () => {
+    if (players.length === 2) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
+  // ensures player with marker = "X" plays first;
+  let activePlayer = null;
+
+  const assignActivePlayer = () => {
+    if (playersComplete()) {
+      activePlayer = players[0].getMarker() === "X" ? players[0] : players[1];
+    }
+  };
+
+  // switches active player
+  //   prints turn for new active player
+  const switchActivePlayer = () => {
+    activePlayer = activePlayer === players[0] ? players[1] : players[0];
+  };
+
+  // allows easier access to active player
+  const getActivePlayer = () => activePlayer;
+
+  //   variables to check against while making move (win or tie)
+  // let winnerFound = false;
+  // let gameDraw = false;
+
+  const roundState = {
+    winnerName: "",
+    winnerMarker: "",
+    gameTied: false,
+    gameWon: false,
+  };
+
+  const getRoundState = () => roundState;
+
+  const rowWin = () => {
+    let rows = gameBoard.rowWin();
+
+    for (const key in rows) {
+      if (rows[key]) {
+        return rows[key];
+      }
+    }
+    return false;
+  };
+
+  const columnWin = () => {
+    let columns = gameBoard.columnWin();
+
+    for (const key in columns) {
+      if (columns[key]) {
+        return columns[key];
+      }
+    }
+    return false;
+  };
+
+  const diagonalWin = () => {
+    let diagonals = gameBoard.diagonalWin();
+
+    for (const key in diagonals) {
+      if (diagonals[key]) {
+        return diagonals[key];
+      }
+    }
+
+    return false;
+  };
+
+  const checkWin = () => {
+    let diagonalWinArr = diagonalWin();
+    let columnWinArr = columnWin();
+    let rowWinArr = rowWin();
+    let win = false;
+
+    if (diagonalWinArr || columnWinArr || rowWinArr) {
+      win = true;
+    }
+
+    return win;
+  };
+
+  let winCells = null;
+
+  const getWinCellsArr = () => {
+    let arr = [];
+    let diagonalWinArr = diagonalWin();
+    let columnWinArr = columnWin();
+    let rowWinArr = rowWin();
+
+    if (diagonalWinArr) {
+      arr.push(...diagonalWinArr);
+    }
+
+    if (columnWinArr) {
+      arr.push(...columnWinArr);
+    }
+
+    if (rowWinArr) {
+      arr.push(...rowWinArr);
+    }
+
+    return arr;
+  };
+
+  const setWinCells = () => {
+    let arr = getWinCellsArr();
+
+    winCells = arr;
+  };
+
+  const getWinCells = () => {
+    return winCells;
+  };
+
+  //   making move logic
+  //   disallows moving if a winner has been found or game is drawn
+  //   makes move
+  // checks for win or tie after making move
+  //   switch active player to next player
+
+  const getIndex = (row, column) => {
+    let store = {
+        "0, 0": 0,
+        "0, 1": 1,
+        "0, 2": 2,
+        "1, 0": 3,
+        "1, 1": 4,
+        "1, 2": 5,
+        "2, 0": 6,
+        "2, 1": 7,
+        "2, 2": 8,
+    }
+
+    return store[`${row}, ${column}`];
+  }
+
+  const move = (row, column) => {
+    if (roundState.gameWon) {
+      console.warn("Winner Found. Move Disallowed");
+      return;
+    }
+
+    if (roundState.gameTied) {
+      console.warn("Game Drawn.");
+      return;
+    }
+
+
+
+    const currentPlayer = getActivePlayer();
+
+    if (currentPlayer === null) {
+      console.warn("Add two human players or one bot one human to play round");
+      return;
+    }
+
+    const playerName = currentPlayer.getName();
+    const playerMarker = currentPlayer.getMarker();
+
+    console.log(
+      `${playerName} wants to add his marker - ${playerMarker} to Row - ${row} Column ${column}`
+    );
+
+    // check if making a move should be allowed;
+    // such as when game is tied or winner has been;
+
+    console.log(
+      `Adding marker - ${playerMarker} to Row - ${row} Column - ${column}`
+    );
+
+    let cellPosition = getIndex(row, column);
+
+    const markerAdded = gameBoard.addMarker(cellPosition, playerMarker);
+
+    if (!markerAdded) {
+      console.warn("Failed to Add Marker");
+      return;
+    }
+
+    console.log(
+      `Added marker - ${playerMarker} to Row - ${row} Column - ${column} - CellPosition ${cellPosition}`
+    );
+    console.log("Printing New Board");
+    console.log(gameBoard.printBoard());
+
+    roundState.gameWon = checkWin();
+
+    if (roundState.gameWon) {
+      roundState.winnerName = playerName;
+      roundState.winnerMarker = playerMarker;
+      setWinCells();
+      console.info(
+        `${roundState.winnerName}  Wins this round. Marker ${playerMarker} takes it.`
+      );
+      console.log(roundState.gameWon);
+      return;
+    }
+
+    roundState.gameTied = gameBoard.drawGame();
+
+    if (roundState.gameTied) {
+      console.info("NOBODY WINS.");
+      return;
+    }
+
+    switchActivePlayer();
+  };
+
+  return {
+    move,
+    getActivePlayer,
+    removePlayers,
+    addBotPlayer,
+    addHumanPlayer,
+    getBoard: gameBoard.getBoard,
+    printBoard: gameBoard.printBoard,
+    getRoundState,
+    getWinCells,
+    // columnWin,
+    // rowWin,
+    // diagonalWin,
+  };
 }
