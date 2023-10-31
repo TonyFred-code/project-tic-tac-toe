@@ -61,32 +61,127 @@ function GameBoard() {
   };
 
   const addMarker = (cellPosition, playerMarker) => {
-
     if (cellPosition < 0 || cellPosition >= 9) {
-        console.warn("Invalid Cell Position value");
-        return false;
+      console.warn("Invalid Cell Position value");
+      return false;
     }
 
     if (playerMarker !== "X" && playerMarker !== "O") {
-        console.warn("Marker not Valid in Tic Tac Toe");
-        return false;
+      console.warn("Marker not Valid in Tic Tac Toe");
+      return false;
     }
 
     let cell = board[cellPosition];
 
     if (cell.getValue() !== cell.getDefaultValue()) {
-        console.warn("There's a marker here already");
-        return false;
+      console.warn("There's a marker here already");
+      return false;
     }
 
     cell.addToken(playerMarker);
 
     return true;
-  }
+  };
+
+  const rowWin = () => {
+    let rows = {
+      row0: false,
+      row1: false,
+      row2: false,
+    };
+
+    let rowWins = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+    ];
+
+    let firstCellMarker,
+      secondCellMarker,
+      thirdCellMarker,
+      firstCellDefaultMarker,
+      secondCellDefaultMarker,
+      thirdCellDefaultMarker;
+
+    for (let i = 0; i < 3; i++) {
+      firstCellMarker = board[rowWins[i][0]].getValue();
+      secondCellMarker = board[rowWins[i][1]].getValue();
+      thirdCellMarker = board[rowWins[i][2]].getValue();
+      firstCellDefaultMarker = board[rowWins[i][0]].getDefaultValue();
+      secondCellDefaultMarker = board[rowWins[i][1]].getDefaultValue();
+      thirdCellDefaultMarker = board[rowWins[i][2]].getDefaultValue();
+
+      if (
+        firstCellMarker === firstCellDefaultMarker ||
+        secondCellMarker === secondCellDefaultMarker ||
+        thirdCellMarker === thirdCellDefaultMarker
+      ) {
+        continue;
+      }
+
+      if (
+        firstCellMarker === secondCellMarker &&
+        secondCellMarker === thirdCellMarker
+      ) {
+        rows[`row${i}`] = rowWins[i];
+      }
+    }
+
+    return rows;
+  };
+
+  const columnWin = () => {
+    let columns = {
+      column0: false,
+      column1: false,
+      column2: false,
+    };
+
+    let columnWins = [
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+    ];
+
+    let firstCellMarker,
+      secondCellMarker,
+      thirdCellMarker,
+      firstCellDefaultMarker,
+      secondCellDefaultMarker,
+      thirdCellDefaultMarker;
+
+    for (let i = 0; i < 3; i++) {
+      firstCellMarker = board[columnWins[i][0]].getValue();
+      secondCellMarker = board[columnWins[i][1]].getValue();
+      thirdCellMarker = board[columnWins[i][2]].getValue();
+      firstCellDefaultMarker = board[columnWins[i][0]].getDefaultValue();
+      secondCellDefaultMarker = board[columnWins[i][1]].getDefaultValue();
+      thirdCellDefaultMarker = board[columnWins[i][2]].getDefaultValue();
+
+      if (
+        firstCellMarker === firstCellDefaultMarker ||
+        secondCellMarker === secondCellDefaultMarker ||
+        thirdCellMarker === thirdCellDefaultMarker
+      ) {
+        continue;
+      }
+
+      if (
+        firstCellMarker === secondCellMarker &&
+        secondCellMarker === thirdCellMarker
+      ) {
+        columns[`column${i}`] = columnWins[i];
+      }
+    }
+
+    return columns;
+  };
 
   return {
     getBoard,
     printBoard,
-    addMarker
+    addMarker,
+    rowWin,
+    columnWin,
   };
 }
