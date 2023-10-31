@@ -177,11 +177,92 @@ function GameBoard() {
     return columns;
   };
 
+  const diagonalWin = () => {
+    let diagonals = {
+      diagonal0: false,
+      diagonal1: false,
+      diagonal2: false,
+    };
+
+    let diagonalWins = [
+      [0, 3, 6],
+      [1, 4, 7],
+    ];
+
+    let firstCellMarker,
+      secondCellMarker,
+      thirdCellMarker,
+      firstCellDefaultMarker,
+      secondCellDefaultMarker,
+      thirdCellDefaultMarker;
+
+    for (let i = 0; i < 2; i++) {
+      firstCellMarker = board[diagonalWins[i][0]].getValue();
+      secondCellMarker = board[diagonalWins[i][1]].getValue();
+      thirdCellMarker = board[diagonalWins[i][2]].getValue();
+      firstCellDefaultMarker = board[diagonalWins[i][0]].getDefaultValue();
+      secondCellDefaultMarker = board[diagonalWins[i][1]].getDefaultValue();
+      thirdCellDefaultMarker = board[diagonalWins[i][2]].getDefaultValue();
+
+      if (
+        firstCellMarker === firstCellDefaultMarker ||
+        secondCellMarker === secondCellDefaultMarker ||
+        thirdCellMarker === thirdCellDefaultMarker
+      ) {
+        continue;
+      }
+
+      if (
+        firstCellMarker === secondCellMarker &&
+        secondCellMarker === thirdCellMarker
+      ) {
+        diagonals[`diagonal${i}`] = diagonalWins[i];
+      }
+    }
+
+    return diagonals;
+  };
+
+  const drawGame = () => {
+    for (let i = 0; i < 9; i++) {
+      let cell = board[i];
+      let marker = cell.getValue();
+      if (marker === cell.getDefaultValue()) {
+        return false;
+      }
+    }
+
+    return true;
+  };
+
   return {
     getBoard,
     printBoard,
     addMarker,
     rowWin,
     columnWin,
+    diagonalWin,
+    drawGame,
   };
+}
+
+// creating players for playing game
+function Player(name, marker) {
+  let playerName = name.trim();
+
+  const getName = () => playerName;
+
+  const getMarker = () => marker;
+
+  return {
+    getMarker,
+    getName,
+  };
+}
+
+// creating human player
+function HumanPlayer(name, marker) {
+  const player = Player(name, marker);
+
+  return Object.assign({}, player);
 }
