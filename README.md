@@ -28,11 +28,10 @@ You can play the game live at [Tic-Tac-Toe Demo](https://tonyfred-code.github.io
 
 ## How To Play
 
- - Open the game in your web browser.
- - Two players take turns to click on an empty cell on the game board.
- - The first player to form a horizontal, vertical, or diagonal line of their marker (X or O) wins the game.
- - If the game board is filled, and no player has won, the game ends in a draw.
-
+- Open the game in your web browser.
+- Two players take turns to click on an empty cell on the game board.
+- The first player to form a horizontal, vertical, or diagonal line of their marker (X or O) wins the game.
+- If the game board is filled, and no player has won, the game ends in a draw.
 
 ## Contributing
 
