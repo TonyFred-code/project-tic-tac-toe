@@ -369,15 +369,17 @@ function Computer(name, marker) {
       }
     }
 
-    function minimax(currBdSt, alpha, beta, currMark) {
+    function minimax(currBdSt, alpha, beta, currMark, depth = 0) {
       // if at a terminal node return a score;
       if (checkIfWinnerFound(currBdSt, opponentMarker)) {
-        return -1;
+        return depth - 10;
       } else if (checkIfWinnerFound(currBdSt, botMarker)) {
-        return 1;
+        return 10 - depth;
       } else if (checkTie(currBdSt)) {
         return 0;
       }
+
+      depth += 1;
 
       const availableMoves = getValidMoves(currBdSt.getBoard());
       const movesCount = availableMoves.length;
@@ -388,7 +390,7 @@ function Computer(name, marker) {
         for (let i = 0; i < movesCount; i++) {
           move = availableMoves[i];
           currBdSt.addMarker(move, currMark); // make a possible move;
-          result = minimax(currBdSt, alpha, beta, opponentMarker);
+          result = minimax(currBdSt, alpha, beta, opponentMarker, depth);
           currBdSt.getBoard()[move].addToken("-"); // undo move made;
           alpha = Math.max(alpha, result);
           if (beta <= alpha) {
@@ -400,7 +402,7 @@ function Computer(name, marker) {
         for (let i = 0; i < movesCount; i++) {
           move = availableMoves[i];
           currBdSt.addMarker(move, currMark); // make a possible move;
-          result = minimax(currBdSt, alpha, beta, botMarker);
+          result = minimax(currBdSt, alpha, beta, botMarker, depth);
           currBdSt.getBoard()[move].addToken("-"); // undo move made;
           beta = Math.min(beta, result);
           if (beta <= alpha) {
